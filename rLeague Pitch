@@ -1,0 +1,90 @@
+
+#see https://witnesstheanalysis.wordpress.com/2019/07/21/rugby-league-and-union-pitches-in-r/ for details 
+
+lines <- read.csv(file="c:/pathtocsvfile/leaguelines.csv", header=TRUE, sep=";")
+attach (lines)
+
+lines1 <- lines %>% filter(rotate == "1")
+
+lines2 <- lines %>% filter(rotate == "2")
+
+create_LEAGUE_Pitch <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
+  
+  theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill= background_colour,colour= background_colour),
+      strip.text.x=element_text(size=size*1))}
+
+  ymin <- 0 # minimum width
+  ymax <- 68 # maximum width
+  xmin <- 0 # minimum length
+  xmax <- 120 # maximum length
+ 
+  
+  #Goals
+  glxst <- 10
+  glyst <- 31.75
+  glxed <- 110
+  glyed <- 36.25
+  
+# tramlines
+  srwing <- 17
+  rhalfsp <- 34
+  ctre <- 51
+ 
+  if(BasicFeatures == TRUE){
+    ## initiate the plot, set some boundries to the plot
+    np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      # add halway line
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
+      geom_segment(data = lines, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      geom_text(data = lines1, aes(x=x, y=y, label = pitch), size = 4, colour = "white") + 
+      geom_text(data = lines2, aes(x=x, y=y, label = pitch), size = 4, colour = "white", angle=180) + 
+      
+    
+  }
+  
+  else{
+    ## initiate the plot, set some boundries to the plot
+     np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      # add halway line
+            geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
+      geom_segment(data = lines, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      geom_text(data = lines1, aes(x=x, y=y, label = pitch), size = 4, colour = "white") + 
+      geom_text(data = lines2, aes(x=x, y=y, label = pitch), size = 4, colour = "white", angle=180) + 
+      annotate(geom="text", x= 5, y=34, label="www.witnesstheanalysis.com",color = label_colour,size = 8, alpha = 0.4, angle=90) +
+      annotate(geom="text", x= 115, y=34, label="www.witnesstheanalysis.com",color = label_colour,size = 8, alpha = 0.4, angle=270) +
+      annotate(geom="text", x= 60, y=4, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 60, y=66, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4)
+  }
+  
+  return(np)}
+
+
+np <- create_LEAGUE_Pitch("#A2CD5A", "white", "black", "blue","red","white", BasicFeatures=TRUE)
