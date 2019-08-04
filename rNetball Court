@@ -1,3 +1,5 @@
+# see https://witnesstheanalysis.wordpress.com/2019/07/24/netball-court-in-r/ for guide to using creating court in r
+
 #Pitch
 create_Netball_Court <- function(court_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
   
