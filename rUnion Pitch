@@ -49,6 +49,7 @@ create_UNION_Pitch <- function(grass_colour, line_colour, background_colour, goa
     ## initiate the plot, set some boundries to the plot
     np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
       theme_blankPitch() +
+      #add lines etc
       geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
       geom_segment(data = lines1, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
       geom_segment(data = lines2, aes(x = x, y = y, xend = xend, yend = yend), linetype="dashed", colour = line_colour,size = 0.5) +
@@ -64,7 +65,7 @@ create_UNION_Pitch <- function(grass_colour, line_colour, background_colour, goa
      np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
       # add the theme 
       theme_blankPitch() +
-      # add halway line
+      # add lines etc
       geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
       geom_segment(data = lines1, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
       geom_segment(data = lines2, aes(x = x, y = y, xend = xend, yend = yend), linetype="dashed", colour = line_colour,size = 0.5) +
