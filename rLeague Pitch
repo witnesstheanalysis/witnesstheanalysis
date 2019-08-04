@@ -55,7 +55,7 @@ create_LEAGUE_Pitch <- function(grass_colour, line_colour, background_colour, go
     np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
       # add the theme 
       theme_blankPitch() +
-      # add halway line
+      # add lines etc
       geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
       geom_segment(data = lines, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
       geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
@@ -71,7 +71,7 @@ create_LEAGUE_Pitch <- function(grass_colour, line_colour, background_colour, go
      np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
       # add the theme 
       theme_blankPitch() +
-      # add halway line
+      # add lines etc
             geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
       geom_segment(data = lines, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
       geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
