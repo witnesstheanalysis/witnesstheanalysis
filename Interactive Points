@@ -1,3 +1,7 @@
+#Load Libraries install them if needed
+Library (plotly)
+Library (ggplot2)
+
 q <- np + geom_point(data = shotdata, aes(x=x, y=y, colour = team, size = 4, shape = outcome, stroke = 1, group = 1,
             text = paste("Team:",team,
                          "<br>Player:", player,
