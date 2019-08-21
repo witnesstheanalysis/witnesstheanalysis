@@ -1,0 +1,10 @@
+q <- np + geom_point(data = shotdata, aes(x=x, y=y, colour = team, size = 4, shape = outcome, stroke = 1, group = 1,
+            text = paste("Team:",team,
+                         "<br>Player:", player,
+                         "<br>Shot:", shot,
+                         "<br>Outcome:", outcome))) + 
+   scale_colour_manual(values = teamcol)  +
+    scale_shape_manual(values = ocome) +
+  theme(legend.position="none") 
+
+ggplotly(q,tooltip = "text")
