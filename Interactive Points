@@ -2,6 +2,16 @@
 Library (plotly)
 Library (ggplot2)
 
+ocome <- c("Goal"= 15,
+             "Point"= 16,
+             "Miss"= 4,
+             "Fk Goal"= 18,
+             "Fk Point"= 1,
+             "Fk Miss"=3)
+  
+  teamcol <- c("A" = "red",
+               "B" = "blue")
+
 q <- np + geom_point(data = shotdata, aes(x=x, y=y, colour = team, size = 4, shape = outcome, stroke = 1, group = 1,
             text = paste("Team:",team,
                          "<br>Player:", player,
