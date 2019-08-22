@@ -19,6 +19,7 @@ q <- np + geom_point(data = shotdata, aes(x=x, y=y, colour = team, size = 4, sha
                          "<br>Outcome:", outcome))) + 
    scale_colour_manual(values = teamcol)  +
     scale_shape_manual(values = ocome) +
-  theme(legend.position="none") 
+  theme(legend.position="none") +
+  ggtitle("Shots Team A & B")
 
 ggplotly(q,tooltip = "text")
