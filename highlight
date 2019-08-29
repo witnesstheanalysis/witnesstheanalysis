@@ -1,4 +1,4 @@
-shots  <- read.csv(file="c:/Users/donag/OneDrive/Spreadsheet fun/PA Analytics/PA Template/teamAB.csv", header=TRUE, sep=";")
+shots  <- read.csv(file="pathtoyourfile/teamAB.csv", header=TRUE, sep=",")
 attach (shots)
 
 ocome <- c("Goal"= 15,
