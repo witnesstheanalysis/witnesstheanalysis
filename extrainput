@@ -1,0 +1,42 @@
+#add in another input
+ui <- pageWithSidebar(
+    headerPanel("witnesstheanalysis.com"),
+    sidebarPanel(
+        selectInput("teaminput","Team", 
+                    list("Team A" = "A", "Team B" = "B")),
+        selectInput("player", "Player:",
+                    list("Player" = list("1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                         "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"))),
+        selectInput("outcome","Outcome", 
+                    list("Point" = "Point","Miss" = "Miss","Fk Point" = "Fk Point", "Fk Miss" = "Fk Miss")),
+        width = 2),
+    mainPanel(
+        fluidRow( 
+            column(width = 5,
+                   plotOutput("plot1")),
+            column(2,offset = 5,
+                   tableOutput("table")))
+        
+    )
+)
+
+#add the extra input to the plot and table too
+
+output$plot1 = renderPlot({
+            filtered <-
+                shots %>%
+                filter(
+                       team == input$teaminput,
+                       player == input$player,
+                       outcome == input$outcome
+                )
+
+
+output$table <- renderTable({filtered <-
+        shotstab %>%
+        filter(
+            team == input$teaminput,
+            player == input$player,
+            outcome == input$outcome
+        )
+
