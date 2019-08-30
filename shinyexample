@@ -3,7 +3,7 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 
-shots  <- read.csv(file="c:/Users/donag/OneDrive/Spreadsheet fun/PA Analytics/PA Template/teamAB.csv", header=TRUE, sep=";")
+shots  <- read.csv(file="c:pathtoyourfile/teamAB.csv", header=TRUE, sep=",")
 attach (shots)
 
 ui <- pageWithSidebar(
