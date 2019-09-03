@@ -1,6 +1,9 @@
 shots  <- read.csv(file="c:/pathtoyoursavedfile/finalshots.csv", header=TRUE, sep=";")
 attach (shots)
 
+ library(dplyr)
+ library(ggplot2)
+
 plydub <- shots%>%group_by(plyshot,outcome) %>% filter(team == "Dublin")%>%summarize(count=n())
 
 my_theme <- function(){
