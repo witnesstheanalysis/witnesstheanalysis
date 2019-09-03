@@ -1,0 +1,42 @@
+shots  <- read.csv(file="c:/pathtoyoursavedfile/finalshots.csv", header=TRUE, sep=";")
+attach (shots)
+
+plydub <- shots%>%group_by(plyshot,outcome) %>% filter(team == "Dublin")%>%summarize(count=n())
+
+my_theme <- function(){
+  theme_light() +
+    theme(text = element_text(),  
+          panel.grid = element_blank(),
+          panel.border = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          plot.title = element_text(size=18),
+          plot.subtitle = element_text(size=16),
+          axis.text.x = element_text(size = 20, color = "gray10"),
+          axis.text.y = element_text(size = 20, color = "gray10"),
+          legend.title = element_text(color = "black", size = 18),
+          legend.text = element_text(color = "black", size = 18))
+  }
+
+q <- ggplot(data = plydub, aes(x = plyshot, y = count, fill = outcome, label = count))
+
+#column chart
+q + 
+geom_bar(stat = "identity", width=.7, aes(x = plyshot, y = count, fill = outcome)) +
+xlab("player") + 
+ylab("count") +
+ggtitle("Dublin Player Shots and Outcomes (AI Final 2019 vs Kerry)", subtitle = "witnesstheanalysis.com") + 
+theme(legend.position="right") +
+geom_text( position = position_stack(vjust = 0.5), size = 14) +
+my_theme()
+
+#bar chart
+q + 
+geom_bar(stat = "identity", width=.7, aes(x = plyshot, y = count, fill = outcome)) +
+xlab("player") + 
+ylab("count") +
+ggtitle("Dublin Player Shots and Outcomes (AI Final 2019 vs Kerry)", subtitle = "witnesstheanalysis.com") + 
+theme(legend.position="right") +
+geom_text( position = position_stack(vjust = 0.5), size = 14) +
+my_theme() +
+coord_flip()
