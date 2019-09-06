@@ -1,6 +1,6 @@
 #see https://witnesstheanalysis.wordpress.com/2019/07/21/rugby-league-and-union-pitches-in-r/ for details & excel files
 
-lines <- read.csv(file="c:/pathtocsvfile/leaguelines.csv", header=TRUE, sep=";")
+lines <- read.csv(file="c:/pathtocsvfile/unionlines.csv", header=TRUE, sep=";")
 attach (lines)
 
 lines1 <- lines %>% filter(dash == "1")
