@@ -1,0 +1,143 @@
+#Load Libraries 
+
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(RColorBrewer)
+
+#Add pitch 
+
+lines <- read.csv(file="c:/pathtocsvfile/unionlines.csv", header=TRUE, sep=";")
+attach (lines)
+
+lines1 <- lines %>% filter(dash == "1")
+lines2 <- lines %>% filter(dash == "2")
+
+
+create_UNION_Pitch <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
+  
+  theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill= background_colour,colour= background_colour),
+      strip.text.x=element_text(size=size*1))}
+
+  ymin <- 0 # minimum width
+  ymax <- 70 # maximum width
+  xmin <- 0 # minimum length
+  xmax <- 140 # maximum length
+ 
+  
+  #Goals
+  glxst <- 20
+  glyst <- 32.5
+  glxed <- 120
+  glyed <- 37.5
+  
+ 
+  if(BasicFeatures == TRUE){
+    ## initiate the plot, set some boundries to the plot
+    np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      theme_blankPitch() +
+      #add lines etc
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
+      geom_segment(data = lines1, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
+      geom_segment(data = lines2, aes(x = x, y = y, xend = xend, yend = yend), linetype="dashed", colour = line_colour,size = 0.5) +
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      annotate(geom="text", x= 70, y=2, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 70, y=68, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4)
+    
+  }
+  
+  else{
+    ## initiate the plot, set some boundries to the plot
+     np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      # add lines etc
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
+      geom_segment(data = lines1, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
+      geom_segment(data = lines2, aes(x = x, y = y, xend = xend, yend = yend), linetype="dashed", colour = line_colour,size = 0.5) +
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      annotate(geom="text", x= 5, y=34, label="www.witnesstheanalysis.com",color = label_colour,size = 8, alpha = 0.4, angle=90) +
+      annotate(geom="text", x= 115, y=34, label="www.witnesstheanalysis.com",color = label_colour,size = 8, alpha = 0.4, angle=270)
+  }
+  
+  return(np)}
+
+
+np <- create_UNION_Pitch("#A2CD5A", "white", "black", "blue","red","white", BasicFeatures=TRUE)
+
+#Set manual scales 
+
+ocome <- c("Pass" = 1,
+               "Kick"= 5,
+               "Tkl"=0,
+               "Ruck"= 16,
+               "Scrum"= 15,
+               "Line Out Won"= 6,
+               "Pen Won"= 2,
+               "Pk Score"= 3,
+               "Pk Miss"= 4,
+               "To Won"= 17,
+               "Try"=84,
+               "Drop Goal" = 18,
+               "Conv"= 67)
+    
+    teamcol <- c("A" = "blue",
+                 "B" = "red")
+                 
+                 
+ #Add collected Data                
+ rugby <- read.csv(file="C:/pathtosavedfile/unionexpa.csv", header=TRUE, sep=",")
+ 
+ #Plot data points onto pitch
+                 
+                 
+                 np + geom_point(data = rugby, aes(x=x, y=y, col = team, shape = outcome), size = 2, stroke = 2) +
+geom_text_repel(data = rugby, aes(x=x, y=y, label = player, col = team), size = 4) +
+scale_shape_manual(values = ocome) +
+scale_colour_manual(values = teamcol) + 
+theme(legend.position="bottom") +
+ggtitle("Team A vs B") + theme(plot.title = element_text(hjust=0.5,size = 40, face = "bold"))
+
+
+#Filter by team 
+rugbyA <- rugby %>%filter(team == "A")
+
+np + geom_point(data = rugbyA, aes(x=x, y=y, col = team, shape = outcome), size = 6, stroke = 2) +
+geom_text_repel(data = rugbyA, aes(x=x, y=y, label = player, col = team), size = 8) +
+scale_shape_manual(values = ocome) +
+scale_colour_manual(values = teamcol) + 
+theme(legend.position="bottom") +
+ggtitle("Team A vs B") + theme(plot.title = element_text(hjust=0.5,size = 40, face = "bold"))
+
+
+#Filter by Player
+rugbyA10 <- rugby %>%filter(player== "10")
+
+np + geom_point(data = rugbyA10, aes(x=x, y=y, col = team, shape = outcome), size = 4, stroke = 2) +
+geom_text_repel(data = rugbyA10, aes(x=x, y=y, label = player, col = team), size = 6) +
+scale_shape_manual(values = ocome) +
+scale_colour_manual(values = teamcol) + 
+theme(legend.position="bottom") +
+ggtitle("Team A vs B") + theme(plot.title = element_text(hjust=0.5,size = 40, face = "bold"))
