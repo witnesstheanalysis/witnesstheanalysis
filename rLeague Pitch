@@ -61,7 +61,7 @@ create_LEAGUE_Pitch <- function(grass_colour, line_colour, background_colour, go
       geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
       geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
       geom_text(data = lines1, aes(x=x, y=y, label = pitch), size = 4, colour = "white") + 
-      geom_text(data = lines2, aes(x=x, y=y, label = pitch), size = 4, colour = "white", angle=180) + 
+      geom_text(data = lines2, aes(x=x, y=y, label = pitch), size = 4, colour = "white", angle=180)  
       
     
   }
