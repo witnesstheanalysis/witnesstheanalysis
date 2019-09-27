@@ -1,6 +1,11 @@
 
 #see https://witnesstheanalysis.wordpress.com/2019/07/21/rugby-league-and-union-pitches-in-r/ for details & excel files
 
+#Load Libraries
+library(ggplot2)
+library(ggrepel)
+library(RColorBrewer)
+
 lines <- read.csv(file="c:/pathtocsvfile/leaguelines.csv", header=TRUE, sep=";")
 attach (lines)
 
