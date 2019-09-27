@@ -1,3 +1,8 @@
+#Load Libraries
+library(ggplot2)
+library(ggrepel)
+library(RColorBrewer)
+
 #Pitch
 create_GAA_Pitch <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
   
