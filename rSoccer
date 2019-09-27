@@ -1,3 +1,8 @@
+#Load Libraries
+library(ggplot2)
+library(ggrepel)
+library(RColorBrewer)
+
 create_Soccer_Pitch <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
   
   theme_blankPitch = function(size=12) { 
