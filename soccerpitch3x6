@@ -215,6 +215,8 @@ annotate(geom="text", x= 79, y=58, label="15",color = label_colour,size = 15, al
 annotate(geom="text", x= 97, y=12, label="16",color = label_colour,size = 15, alpha = 0.4) + 
 annotate(geom="text", x= 97, y=35, label="17",color = label_colour,size = 15, alpha = 0.4) + 
 annotate(geom="text", x= 97, y=58, label="18",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 98, y=2, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) +
+      annotate(geom="text", x= 8, y=66, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) +
       #circle
       geom_path(data=cent_circle, aes(x,y), colour = line_colour,size = 0.5) 
   }
