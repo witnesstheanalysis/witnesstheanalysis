@@ -1,0 +1,170 @@
+#Load Libraries
+library(ggplot2)
+library(ggrepel)
+library(RColorBrewer)
+
+#Pitch
+create_Netball_Court <- function(court_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
+  
+  theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill= background_colour,colour= background_colour),
+      strip.text.x=element_text(size=size*1))}
+
+  ymin <- 0 # minimum width
+  ymax <- 15.25 # maximum width
+  xmin <- 0 # minimum length
+  xmax <- 30.5 # maximum length
+  
+  # pitch lines
+  def13 <- 10.167
+  def20 <- 20.334
+ 
+  #Goals
+  glxst <- 0
+  glyst <- 7.125
+  glxed <- 30.5
+  glyed <- 8.125
+
+     
+  circleFundef <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=2)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] + diameter / 2 * cos(tt), 
+               y = center[2] + diameter / 2 * sin(tt))
+  }
+  
+  circleFunatt <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=2)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] - diameter / 2 * cos(tt), 
+               y = center[2] - diameter / 2 * sin(tt))
+  }
+
+circleFuncent <- function(center=c(0,0), diameter=.900, npoints=100, start=0, end=2)
+  {
+    r = diameter / 2
+    tt <- seq(0,2*pi,length.out = npoints)
+    x <- center[1] + r * cos(tt)
+    y <- center[2] + r * sin(tt)
+    return(data.frame(x = x, y = y))
+  }
+
+circleFuncgkdef <- function(center=c(0,0), diameter=.380, npoints=100, start=0, end=2)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] + diameter / 2 * cos(tt), 
+               y = center[2] + diameter / 2 * sin(tt))
+  }
+
+circleFuncgkoff <- function(center=c(0,0), diameter=.380, npoints=100, start=0, end=2)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] - diameter / 2 * cos(tt), 
+               y = center[2] - diameter / 2 * sin(tt))
+  }
+
+  #### create semi circle ####
+  def_circle <-  circleFundef(c(0,7.625), 9.8, start=1.5, end=2.5)
+  att_circle <-  circleFunatt(c(30.5,7.625), 9.8, start=1.5, end=2.5)
+  cent_circle <-  circleFuncent(c(15.25,7.625), .900, start=1.5, end=2.5)
+  gkdef_circle <-  circleFuncgkdef(c(0,7.625), .380, start=1.5, end=2.5)
+  gkoff_circle <-  circleFuncgkoff(c(30.5,7.625), .380, start=1.5, end=2.5)
+  
+  if(BasicFeatures == TRUE){
+    ## initiate the plot, set some boundries to the plot
+    np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      #  # add lines etc
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = court_colour, colour = line_colour) + 
+      geom_segment(aes(x = def13, y = ymin, xend = def13, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = def20, y = ymin, xend = def20, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_path(data=def_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      geom_path(data=att_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      geom_path(data=cent_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      geom_path(data=gkdef_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      geom_path(data=gkoff_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      annotate(geom="text", x= 15.25, y=.5, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) +
+      annotate(geom="text", x= 15.25, y=14.75, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4)
+    
+  }
+  
+  else{
+    ## initiate the plot, set some boundries to the plot
+     np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      # add lines etc
+            geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = court_colour, colour = line_colour) + 
+      geom_segment(aes(x = def13, y = ymin, xend = def13, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = def20, y = ymin, xend = def20, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_path(data=def_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      geom_path(data=att_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      geom_path(data=cent_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      geom_path(data=gkdef_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      geom_path(data=gkoff_circle, aes(x,y), colour = line_colour,size = 0.5) +
+geom_segment(aes(x = 4.94, y = 2.7, xend = 4.94, yend = 12.5),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = 25.62, y = 2.7, xend = 25.62, yend = 12.5),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = 15.25, y = ymin, xend = 15.25, yend = ymax),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = 4.94, y = ymin, xend = 4.94, yend = ymax),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = 25.62, y = ymin, xend = 25.62, yend = ymax),colour = line_colour,linetype="dotted",size = 0.5) +
+#vert
+geom_segment(aes(x = xmin, y = 2.7, xend = 4.94, yend = 2.7),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmin, y = 12.5, xend = 4.94, yend = 12.5),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmax, y = 2.7, xend = 25.62, yend = 2.7),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmax, y = 12.5, xend = 25.62, yend = 12.5),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmin, y = 2.7, xend = xmax, yend = 2.7),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmin, y = 12.5, xend = xmax, yend = 12.5),colour = line_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmin, y = 7.625, xend = xmax, yend = 7.625),colour = line_colour,linetype="dotted",size = 0.5) +
+annotate(geom="text", x= 2, y=1.75, label="1",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 2, y=5.5, label="2",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 2, y=10.5, label="3",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 2, y=14, label="4",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 7, y=1.75, label="5",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 7, y=5.5, label="6",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 7, y=10.5, label="7",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 7, y=14, label="8",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 13, y=1.75, label="9",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 13, y=5.5, label="10",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 13, y=10.5, label="11",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 13, y=14, label="12",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 18, y=1.75, label="13",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 18, y=5.5, label="14",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 18, y=10.5, label="15",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 18, y=14, label="16",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 23, y=1.75, label="17",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 23, y=5.5, label="18",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 23, y=10.5, label="19",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 23, y=14, label="20",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 28, y=1.75, label="21",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 28, y=5.5, label="22",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 28, y=10.5, label="23",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 28, y=14, label="24",color = label_colour,size = 15, alpha = 0.4) +
+      annotate(geom="text", x= 15.25, y=.5, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) +
+      annotate(geom="text", x= 15.25, y=14.75, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4)
+  }
+  
+  return(np)}
+
+
+np <- create_Netball_Court ("purple", "white", "orange", "black","black","white", BasicFeatures=TRUE)
+np
