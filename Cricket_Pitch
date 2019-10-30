@@ -1,0 +1,151 @@
+create_Cricket_Oval <- function(grass_colour, line_colour, border_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
+
+theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill= border_colour,colour= border_colour),
+      strip.text.x=element_text(size=size*1))}
+
+  xmin <- 0 # minimum length
+  xmax <- 160 # maximum length
+  ymin <- 0 # minimum width
+  ymax <- 146 # maximum width
+  
+  #Crease
+  crsxl <- 78.475
+  crsxr <- 81.525
+  crsd <- 61.72
+  crsu <- 84.28
+
+  #Popping Crease
+  pcl <- 77
+  pcr <- 83
+  pcd <- 64.16
+  pcu <- 81.84
+  
+  #Wickets
+  wkxr <- 79.78
+  wkxl <- 80.22
+  wkd <- 62.94
+  wku <- 83.03
+
+  #Wides
+  widesxl <- 78.68
+  widesxr <- 81.32
+  widesyd <- 64.16
+  widesyu <- 81.84
+
+  #BL
+  #blCrease
+  blcrsxl <- 0
+  blcrsxr <- 14.64
+  blcrsd <- 0
+  blcrsu <- 22.56
+
+  #blWickets
+  blwkxr <- 6.88
+  blwkxl <- 7.76
+  blwku <- 20.12
+
+  #blPopping Crease
+  blpcl <- 0
+  blpcr <- 14.64
+  blpcu <- 17.68
+
+  #blWides
+  blwidesxl <- 2.04
+  blwidesxr <- 12.60
+  blwidesyu <- 17.68
+
+#Beehive 
+  bhxmin <- 132 # minimum length
+  bhxmax <- 160 # maximum length
+  bhymin <- 0 # minimum width
+  bhymax <- 14 # maximum width
+  bhwkl  <- 144.46
+  bhwkr  <- 147.54
+  bhwkh  <- 5.488
+  
+
+  
+ if(BasicFeatures == TRUE){
+npo <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+# boundaries
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = background_colour, colour = background_colour) +
+      geom_ellipse(aes(x0 = 80, y0 = 73, a = 80, b = 73, angle = 0),colour = line_colour,linetype="solid",fill = grass_colour,size = 0.5) +
+      
+#Circle
+      geom_ellipse(aes(x0 = 80, y0 = 73, a = 54.8, b = 27.4, angle = pi / 2, m1 = 3),colour = line_colour,linetype="dotted") +
+#Crease
+      geom_rect(aes(xmin = crsxl , xmax = crsxr, ymin = crsd, ymax = crsu),fill ="wheat3") +
+      geom_segment(aes(x =  pcl, y = pcd, xend = pcr, yend = pcd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x =  pcl, y = pcu, xend = pcr, yend = pcu),colour = line_colour,linetype="solid",size = 0.5) +
+#Wides
+      geom_segment(aes(x = widesxl, y = widesyu, xend = widesxl, yend =  crsu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = widesxr, y = widesyu, xend = widesxr, yend =  crsu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = widesxl, y = widesyd, xend = widesxl, yend =  crsd),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = widesxr, y = widesyd, xend = widesxr, yend =  crsd),colour = line_colour,linetype="solid",size = 0.5) +
+
+#Wickets
+      geom_segment(aes(x =  wkxl, y = wkd, xend =  wkxr, yend = wkd),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =  wkxl, y = wku, xend = wkxr, yend = wku),colour = goalb_colour, size = 1)+
+
+#Annotations
+      annotate(geom="text", x= 80, y=133, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 80, y=14, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4)
+ }
+  
+  else{
+npo <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+# boundaries
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = background_colour, colour = background_colour) +
+      geom_ellipse(aes(x0 = 80, y0 = 73, a = 80, b = 73, angle = 0),colour = line_colour,linetype="solid",fill = grass_colour,size = 0.5) +
+      
+#Circle
+      geom_ellipse(aes(x0 = 80, y0 = 73, a = 54.8, b = 27.4, angle = pi / 2, m1 = 3),colour = line_colour,linetype="dotted") +
+#Crease
+      geom_rect(aes(xmin = crsxl , xmax = crsxr, ymin = crsd, ymax = crsu),fill ="wheat3") +
+      geom_segment(aes(x =  pcl, y = pcd, xend = pcr, yend = pcd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x =  pcl, y = pcu, xend = pcr, yend = pcu),colour = line_colour,linetype="solid",size = 0.5) +
+#Wides
+      geom_segment(aes(x = widesxl, y = widesyu, xend = widesxl, yend =  crsu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = widesxr, y = widesyu, xend = widesxr, yend =  crsu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = widesxl, y = widesyd, xend = widesxl, yend =  crsd),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = widesxr, y = widesyd, xend = widesxr, yend =  crsd),colour = line_colour,linetype="solid",size = 0.5) +
+
+#Wickets
+      geom_segment(aes(x =  wkxl, y = wkd, xend =  wkxr, yend = wkd),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =  wkxl, y = wku, xend = wkxr, yend = wku),colour = goalb_colour, size = 1) +
+#Annotations
+      annotate(geom="text", x= 82, y=133, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 82, y=23, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4)
+      }
+  
+  return(npo)}
+
+
+npo <- create_Cricket_Oval ("#A2CD5A", "white", "black", "orange","blue","red","white", BasicFeatures=TRUE)
+
+npo
+
