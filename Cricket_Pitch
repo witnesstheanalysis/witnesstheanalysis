@@ -154,7 +154,7 @@ npo <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
       geom_segment(aes(x =  wkxl, y = wku, xend = wkxr, yend = wku),colour =  wkta_colour, size = 1) +
 #Annotations
       annotate(geom="text", x= 82, y=133, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 82, y=23, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4)
+      annotate(geom="text", x= 82, y=14, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4)
       }
   
   return(npo)}
