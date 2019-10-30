@@ -1,0 +1,204 @@
+create_AFL_Pitch <- function(grass_colour, line_colour, border_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
+
+theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill= border_colour,colour= border_colour),
+      strip.text.x=element_text(size=size*1))}
+
+
+  ymin <- 0 # minimum width
+  ymax <- 146 # maximum width
+  xmin <- 0 # minimum length
+  xmax <- 160 # maximum length
+
+  #Goal Square
+  glsqrl <- 9
+  glsqrr <- 151
+  glsqrright <- 69.8
+  glsqrleft <- 76.2
+
+  #Centre Square
+  ctsqrvl <- 55
+  ctsqrvr <- 105
+  ctsqrhd <- 48
+  ctsqrhu <- 98
+
+  #Goal Post
+  gpdef <- 0
+  gpatt <- 160
+  gpbr <- 63.4
+  gpbl <- 82.6
+  gpbdef <- 0.5
+  gpbatt <- 159.5
+
+  #Tramlines
+  rwing <- 48
+  lwing <- 98
+  tlstart <- 5
+  tlend <- 155
+  ftyl <- 50 
+  ftyr <- 110
+  ftystart <- 5
+  ftyend <- 140
+
+  
+
+  circleFundef <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=1)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] + diameter / 2  * cos(tt), 
+               y = center[2] + diameter / 2 * sin(tt))
+  }
+
+
+circleFunatt <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=1)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] - diameter / 2 * cos(tt), 
+               y = center[2] - diameter / 2 * sin(tt))
+  }
+
+
+circleFuncent <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=1)
+  {
+    r = diameter / 2
+    tt <- seq(0,2*pi,length.out = npoints)
+    x <- center[1] + r * cos(tt)
+    y <- center[2] + r * sin(tt)
+    return(data.frame(x = x, y = y))
+  }
+  
+
+#Create Circles
+bcent_circle <-  circleFuncent(c(80,73), 5, start=1.5, end=2.5) 
+scent_circle <-  circleFuncent(c(80,73), 1.5, start=1.5, end=2.5) 
+
+def_circle <-  circleFundef(c(0,73),100, start=1.5, end=2.5)
+def_circle <- def_circle[which(def_circle$x >= (18.2)),]
+att_circle <-  circleFunatt(c(160,73),100, start=1.5, end=2.5)
+att_circle <- att_circle[which(att_circle$x <= (142)),]
+
+ if(BasicFeatures == TRUE){
+np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+# boundaries
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = background_colour, colour = background_colour) +
+      geom_ellipse(aes(x0 = 80, y0 = 73, a = 80, b = 73, angle = 0),colour = line_colour,linetype="solid",fill = grass_colour,size = 0.5) +
+#Goal Square
+      geom_segment(aes(x = glsqrl, y = glsqrright, xend = glsqrl, yend = glsqrleft),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = xmin, y = glsqrright, xend = glsqrl, yend = glsqrright),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = glsqrleft, xend = glsqrl, yend = glsqrleft),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = glsqrr, y = glsqrright, xend = glsqrr, yend = glsqrleft),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = glsqrr, y = glsqrright, xend = xmax, yend = glsqrright),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = glsqrr, y = glsqrleft, xend = xmax, yend = glsqrleft),colour = line_colour,linetype="solid",size = 0.5) +
+#Centre Square
+      geom_segment(aes(x = ctsqrvl, y = ctsqrhd, xend = ctsqrvl, yend =  ctsqrhu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = ctsqrvr, y = ctsqrhd, xend = ctsqrvr, yend =  ctsqrhu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = ctsqrvl, y = ctsqrhd, xend = ctsqrvr, yend =  ctsqrhd),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = ctsqrvl, y = ctsqrhu, xend = ctsqrvr, yend =  ctsqrhu),colour = line_colour,linetype="solid",size = 0.5) +
+#Centre Circles
+      geom_path(data=bcent_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      geom_path(data=scent_circle, aes(x,y), colour = line_colour,size = 0.5) +
+#50m Lines
+      geom_path(data=def_circle, aes(x,y), colour = goala_colour,size = 0.5) +
+      geom_path(data=att_circle, aes(x,y), colour = goalb_colour,size = 0.5) + 
+#Goal Post
+      geom_point(aes(x=gpdef, y=glsqrright),colour = goala_colour, size = 2) +
+      geom_point(aes(x=gpdef, y=glsqrleft),colour = goala_colour, size = 2) +
+      geom_point(aes(x=gpbdef, y=gpbr),colour = goala_colour, size = 2) +
+      geom_point(aes(x=gpbdef, y=gpbl),colour = goala_colour, size = 2) +
+      geom_point(aes(x=gpatt, y=glsqrright),colour = goalb_colour, size = 2) +
+      geom_point(aes(x=gpatt, y=glsqrleft),colour = goalb_colour, size = 2) +
+      geom_point(aes(x=gpbatt, y=gpbr),colour = goalb_colour, size = 2) +
+      geom_point(aes(x=gpbatt, y=gpbl),colour = goalb_colour, size = 2) +
+#Annotations
+      annotate(geom="text", x= 20, y=27, label="50",color = goala_colour,size = 8, alpha = 0.4) +
+      annotate(geom="text", x= 20, y=119, label="50",color = goala_colour,size = 8, alpha = 0.4) +
+      annotate(geom="text", x= 140, y=27, label="50",color = goalb_colour,size = 8, alpha = 0.4) +
+      annotate(geom="text", x= 140, y=119, label="50",color = goalb_colour,size = 8, alpha = 0.4) +
+      annotate(geom="text", x= 82, y=46, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 82, y=101, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4) }
+  
+  else{
+np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+# boundaries
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = "orange", colour = "orange") +
+      geom_ellipse(aes(x0 = 80, y0 = 73, a = 80, b = 73, angle = 0),colour = line_colour,linetype="solid",fill = grass_colour,size = 0.5) +
+#Goal Square
+      geom_segment(aes(x = glsqrl, y = glsqrright, xend = glsqrl, yend = glsqrleft),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = xmin, y = glsqrright, xend = glsqrl, yend = glsqrright),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = glsqrleft, xend = glsqrl, yend = glsqrleft),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = glsqrr, y = glsqrright, xend = glsqrr, yend = glsqrleft),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = glsqrr, y = glsqrright, xend = xmax, yend = glsqrright),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = glsqrr, y = glsqrleft, xend = xmax, yend = glsqrleft),colour = line_colour,linetype="solid",size = 0.5) +
+#Centre Square
+      geom_segment(aes(x = ctsqrvl, y = ctsqrhd, xend = ctsqrvl, yend =  ctsqrhu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = ctsqrvr, y = ctsqrhd, xend = ctsqrvr, yend =  ctsqrhu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = ctsqrvl, y = ctsqrhd, xend = ctsqrvr, yend =  ctsqrhd),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = ctsqrvl, y = ctsqrhu, xend = ctsqrvr, yend =  ctsqrhu),colour = line_colour,linetype="solid",size = 0.5) +
+#Centre Circles
+      geom_path(data=bcent_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      geom_path(data=scent_circle, aes(x,y), colour = line_colour,size = 0.5) +
+#50m Lines
+      geom_path(data=def_circle, aes(x,y), colour = "blue",size = 0.5) +
+      geom_path(data=att_circle, aes(x,y), colour = "red",size = 0.5) + 
+#Goal Post
+      geom_point(aes(x=gpdef, y=glsqrright),colour = "blue", size = 2) +
+      geom_point(aes(x=gpdef, y=glsqrleft),colour = "blue", size = 2) +
+      geom_point(aes(x=gpbdef, y=gpbr),colour = "blue", size = 2) +
+      geom_point(aes(x=gpbdef, y=gpbl),colour = "blue", size = 2) +
+      geom_point(aes(x=gpatt, y=glsqrright),colour = "red", size = 2) +
+      geom_point(aes(x=gpatt, y=glsqrleft),colour = "red", size = 2) +
+      geom_point(aes(x=gpbatt, y=gpbr),colour = "red", size = 2) +
+      geom_point(aes(x=gpbatt, y=gpbl),colour = "red", size = 2) +
+#Tramlines
+      geom_segment(aes(x = tlstart, y = rwing, xend = tlend, yend = rwing),colour = line_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = tlstart, y = lwing, xend = tlend, yend = lwing),colour = line_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = ftyl, y = ftystart, xend = ftyl, yend = ftyend),colour = line_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = ftyr, y = ftystart, xend = ftyr, yend = ftyend),colour = line_colour,linetype="dotted",size = 0.5) +
+#Zones
+annotate(geom="text", x= 30, y=30, label="1",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 30, y=80, label="2",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 30, y=110, label="3",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 75, y=30, label="4",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 75, y=80, label="5",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 75, y=110, label="6",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 130, y=30, label="7",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 130, y=80, label="8",color = label_colour,size = 15, alpha = 0.4) + 
+annotate(geom="text", x= 130, y=110, label="9",color = label_colour,size = 15, alpha = 0.4) +  
+#Annotations
+      annotate(geom="text", x= 20, y=27, label="50",color = "blue",size = 8, alpha = 0.4) +
+      annotate(geom="text", x= 20, y=119, label="50",color = "blue",size = 8, alpha = 0.4) +
+      annotate(geom="text", x= 140, y=27, label="50",color = "red",size = 8, alpha = 0.4) +
+      annotate(geom="text", x= 140, y=119, label="50",color = "red",size = 8, alpha = 0.4) +
+      annotate(geom="text", x= 82, y=46, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 82, y=101, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4)}
+  
+  return(np)}
+
+
+np <- create_AFL_Pitch("#A2CD5A", "white", "black", "orange","blue","red","white", BasicFeatures=TRUE)
+
+np
+
