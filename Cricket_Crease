@@ -81,11 +81,11 @@ npc <- ggplot() + xlim(c(blcrsxl,blcrsxr)) + ylim(c(blcrsd,blcrsu)) +
       geom_segment(aes(x =  blcrsxl, y =  blbo, xend = blcrsxr, yend =  blbo),colour = "red",linetype="solid",size = 0.5) +
       geom_segment(aes(x =  blcrsxl, y =  blbhw, xend = blcrsxr, yend =  blbhw),colour = "black",linetype="solid",size = 0.5) +
 
-      annotate(geom="text", x= 2, y=17.12, label="Yorker",color = line_colour,size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 2, y=14.12, label="Full Legth",color = line_colour,size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 2, y=10.12, label="Good Length",color = line_colour,size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 2, y=6.12, label="Back of a Length",color = line_colour,size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 12, y=1, label="www.witnesstheanalysis.com",color = line_colour,size = 4, alpha = 0.4) }
+      annotate(geom="text", x= 2, y=17.12, label="Yorker",color = label_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 2, y=14.12, label="Full Legth",color = label_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 2, y=10.12, label="Good Length",color = label_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 2, y=6.12, label="Back of a Length",color = label_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 12, y=1, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) }
 
 return(npc)}
 
