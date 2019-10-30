@@ -1,0 +1,52 @@
+create_Cricket_Beehive <- function(line_colour, background_colour, wkta_colour,label_colour, BasicFeatures){
+
+theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill=  background_colour,colour= line_colour),
+      strip.text.x=element_text(size=size*1))}
+
+#Beehive 
+  bhxmin <- 132 # minimum length
+  bhxmax <- 160 # maximum length
+  bhymin <- 0 # minimum width
+  bhymax <- 14 # maximum width
+  bhwkl  <- 144.46
+  bhwkr  <- 147.54
+  bhwkh  <- 5.488
+
+ 
+
+if(BasicFeatures == TRUE){npb <- ggplot() + 
+      # add the theme 
+      theme_blankPitch() +
+#Beehive
+      geom_rect(aes(xmin=bhxmin, xmax=bhxmax, ymin=bhymin, ymax=bhymax), fill = "white", colour = "black") +
+      geom_rect(aes(xmin=bhwkl, xmax=bhwkr, ymin=bhymin, ymax=bhwkh), fill = "black", colour = "black") +
+#Annotations
+annotate(geom="text", x= 155, y=0.5, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) }
+
+return(npb)}
+
+
+npb <- create_Cricket_Beehive ( "white", "black", "white", "red", BasicFeatures=TRUE)
+
+npb
+
