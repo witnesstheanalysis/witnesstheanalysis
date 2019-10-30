@@ -1,4 +1,4 @@
-create_Cricket_Oval <- function(grass_colour, line_colour, border_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
+create_Cricket_Oval <- function(grass_colour, line_colour, border_colour, background_colour, wkta_colour,wktb_colour,label_colour, BasicFeatures){
 
 theme_blankPitch = function(size=12) { 
     theme(
@@ -106,12 +106,27 @@ npo <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
       geom_segment(aes(x = widesxr, y = widesyd, xend = widesxr, yend =  crsd),colour = line_colour,linetype="solid",size = 0.5) +
 
 #Wickets
-      geom_segment(aes(x =  wkxl, y = wkd, xend =  wkxr, yend = wkd),colour = goala_colour, size = 1) +
-      geom_segment(aes(x =  wkxl, y = wku, xend = wkxr, yend = wku),colour = goalb_colour, size = 1)+
+      geom_segment(aes(x =  wkxl, y = wkd, xend =  wkxr, yend = wkd),colour =  wkta_colour, size = 1) +
+      geom_segment(aes(x =  wkxl, y = wku, xend = wkxr, yend = wku),colour =  wktb_colour, size = 1)+
 
+#BL
+#blCrease
+      geom_rect(aes(xmin = blcrsxl , xmax = blcrsxr, ymin = blcrsd, ymax = blcrsu),fill ="wheat3") +
+      geom_segment(aes(x =  blpcl, y = blpcu, xend = blpcr, yend = blpcu),colour = line_colour,linetype="solid",size = 0.5) +
+
+#blWickets
+      geom_segment(aes(x = blwkxl, y = blwku, xend = blwkxr, yend = blwku),colour =  wktb_colour, size = 1) + 
+
+#blWides
+      geom_segment(aes(x = blwidesxl, y = blwidesyu, xend = blwidesxl, yend =  blcrsu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = blwidesxr, y = blwidesyu, xend = blwidesxr, yend =  blcrsu),colour = line_colour,linetype="solid",size = 0.5) +
+
+#Beehive
+      geom_rect(aes(xmin=bhxmin, xmax=bhxmax, ymin=bhymin, ymax=bhymax), fill = "blue", colour = "black") +
+      geom_rect(aes(xmin=bhwkl, xmax=bhwkr, ymin=bhymin, ymax=bhwkh), fill = "white", colour = "white") +
 #Annotations
-      annotate(geom="text", x= 80, y=133, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 80, y=14, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4)
+      annotate(geom="text", x= 80, y=133, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 80, y=14, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4)
  }
   
   else{
@@ -135,11 +150,11 @@ npo <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
       geom_segment(aes(x = widesxr, y = widesyd, xend = widesxr, yend =  crsd),colour = line_colour,linetype="solid",size = 0.5) +
 
 #Wickets
-      geom_segment(aes(x =  wkxl, y = wkd, xend =  wkxr, yend = wkd),colour = goala_colour, size = 1) +
-      geom_segment(aes(x =  wkxl, y = wku, xend = wkxr, yend = wku),colour = goalb_colour, size = 1) +
+      geom_segment(aes(x =  wkxl, y = wkd, xend =  wkxr, yend = wkd),colour =  wktb_colour, size = 1) +
+      geom_segment(aes(x =  wkxl, y = wku, xend = wkxr, yend = wku),colour =  wkta_colour, size = 1) +
 #Annotations
-      annotate(geom="text", x= 82, y=133, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 82, y=23, label="www.witnesstheanalysis.com",color = line_colour,size = 6, alpha = 0.4)
+      annotate(geom="text", x= 82, y=133, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 82, y=23, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4)
       }
   
   return(npo)}
