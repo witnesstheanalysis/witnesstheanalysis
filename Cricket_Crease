@@ -1,0 +1,97 @@
+create_Cricket_Crease <- function(grass_colour, line_colour, border_colour, background_colour, wkta_colour,wktb_colour,label_colour, BasicFeatures){
+
+theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill= border_colour,colour= border_colour),
+      strip.text.x=element_text(size=size*1))}
+
+ #BL (x/4 and y*2)
+  #blCrease
+  blcrsxl <- 0
+  blcrsxr <- 14.64
+  blcrsd <- 0
+  blcrsu <- 22.56
+
+  #blWickets
+  blwkxr <- 6.88
+  blwkxl <- 7.76
+  blwku <- 20.12
+
+  #blPopping Crease
+  blpcl <- 0
+  blpcr <- 14.64
+  blpcu <- 17.68
+
+  #blWides
+  blwidesxl <- 2.04
+  blwidesxr <- 12.60
+  blwidesyu <- 17.68
+
+ #Bowling Length
+  blykr <- 16.12
+  blfl <- 12.12
+  blgd <- 8.12
+  blbo <- 4.12
+  blbhw <- 0.12
+
+
+if(BasicFeatures == TRUE){
+npc <- ggplot() + xlim(c(blcrsxl,blcrsxr)) + ylim(c(blcrsd,blcrsu)) +
+      # add the theme 
+      theme_blankPitch() +
+
+#BL
+#blCrease
+      geom_rect(aes(xmin = blcrsxl , xmax = blcrsxr, ymin = blcrsd, ymax = blcrsu),fill ="wheat3") +
+      geom_rect(aes(xmin = blwkxl, xmax = blwkxr, ymin = blcrsd, ymax = blwku),fill ="lightgreen") +
+      geom_segment(aes(x =  blpcl, y = blpcu, xend = blpcr, yend = blpcu),colour = line_colour,linetype="solid",size = 0.5) +
+
+#blWickets
+
+      geom_segment(aes(x = blwkxl, y = blwku, xend = blwkxr, yend = blwku),colour = wktb_colour, size = 1) + 
+      
+      
+#blWides
+      geom_segment(aes(x = blwidesxl, y = blwidesyu, xend = blwidesxl, yend =  blcrsu),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = blwidesxr, y = blwidesyu, xend = blwidesxr, yend =  blcrsu),colour = line_colour,linetype="solid",size = 0.5) +
+
+
+#Bowling Length
+      geom_segment(aes(x =  blcrsxl, y =  blykr, xend = blcrsxr, yend =  blykr),colour = "green",linetype="solid",size = 0.5) + 
+      geom_segment(aes(x =  blcrsxl, y =  blfl, xend = blcrsxr, yend =  blfl),colour = "blue",linetype="solid",size = 0.5) +
+      geom_segment(aes(x =  blcrsxl, y =  blgd, xend = blcrsxr, yend =  blgd),colour = "yellow",linetype="solid",size = 0.5) +
+      geom_segment(aes(x =  blcrsxl, y =  blbo, xend = blcrsxr, yend =  blbo),colour = "red",linetype="solid",size = 0.5) +
+      geom_segment(aes(x =  blcrsxl, y =  blbhw, xend = blcrsxr, yend =  blbhw),colour = "black",linetype="solid",size = 0.5) +
+
+      annotate(geom="text", x= 2, y=17.12, label="Yorker",color = line_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 2, y=14.12, label="Full Legth",color = line_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 2, y=10.12, label="Good Length",color = line_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 2, y=6.12, label="Back of a Length",color = line_colour,size = 6, alpha = 0.4) +
+      annotate(geom="text", x= 12, y=1, label="www.witnesstheanalysis.com",color = line_colour,size = 4, alpha = 0.4) }
+
+return(npc)}
+
+
+npc <- create_Cricket_Crease ("#A2CD5A", "white", "black", "orange","blue","red","white", BasicFeatures=TRUE)
+
+npc
+
+
