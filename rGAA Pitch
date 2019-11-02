@@ -190,3 +190,5 @@ create_GAA_Pitch <- function(grass_colour, line_colour, background_colour, goala
 
 
 np <- create_GAA_Pitch("#A2CD5A", "white", "lightblue", "blue","red","white", BasicFeatures=TRUE)
+
+np
