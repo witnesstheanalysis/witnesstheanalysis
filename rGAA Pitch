@@ -63,7 +63,7 @@ create_GAA_Pitch <- function(grass_colour, line_colour, background_colour, goala
   glyed <- 52.25
 
   #halfway line
-  hwxst <- 72.5
+  hwxst <- 72
   hwyst <- 45.75
   hwyed <- 52.25
 
