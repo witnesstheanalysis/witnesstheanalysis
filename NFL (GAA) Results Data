@@ -1,3 +1,8 @@
+#Required Libraries
+library(plyr)
+library(dplyr)
+library(formattable)
+library(tidyverse)
 
 #All
 scrs <- read.csv(file="c:/pathtofile.csv", header=TRUE, sep=",")
