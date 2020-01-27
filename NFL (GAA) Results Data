@@ -1,0 +1,126 @@
+
+#All Time
+scrs <- read.csv(file="c:/pathtofile.csv", header=TRUE, sep=";")
+attach (scrs)
+
+#Cleaning
+
+scrs$Team_Name = str_to_title(scrs$Team_Name)
+scrs$Opp_Name = str_to_title(scrs$Opp_Name)
+scrs$Venue = str_to_title(scrs$Venue)
+scrs$Game_Round = str_to_title(scrs$Game_Round)
+
+scrs$Venue[scrs$Venue==""]<-"Unkown"
+
+scrs$Game_Type <- ifelse(grepl("Final", scrs$Game_Round), "Final", "League")
+
+#Adding Columns 
+scrs$Year <- str_sub(scrs$Date, -4)
+
+scrs <-scrs %>% mutate(Win_Team = ifelse(Team_Score > Opp_Score,as.character(scrs$Team_Name), ifelse(Team_Score < Opp_Score, as.character(scrs$Opp_Name),"Draw")))
+
+scrs <-scrs%>%mutate(Win_Marg =(abs ( scrs$Team_Score - scrs$Opp_Score )))
+
+scrsvs <-scrs %>% mutate(Win_Nu= ifelse(Team_Score > Opp_Score,2, ifelse(Team_Score < Opp_Score,0,1)))
+
+scrsvs <-scrsvs %>% mutate(Win_NuA = ifelse(Team_Score < Opp_Score,2, ifelse(Team_Score > Opp_Score,0,1)))
+
+scrsvs <-scrsvs %>% mutate(Opp = Opp_Name,OppA = Team_Name, Opp_Scr = Opp_Score,OppScrA = Team_Score,Opp_G = Opp_Goals,OppGA = Team_Goals,Opp_P = Opp_Points,OppPA = Team_Points)
+
+Team <- scrsvs [, c("Date" , "Game_Round", "Game_Type", "Year", "Division", "Team_Name", "Team_Goals", "Team_Points", "Team_Score", "Opp", "Opp_G", "Opp_P", "Opp_Scr", "Win_Nu")]
+
+Opp <- scrsvs [, c( "Date" , "Game_Round", "Game_Type", "Year", "Division", "Opp_Name" , "Opp_Goals", "Opp_Points", "Opp_Score" , "OppA" , "OppGA" ,"OppPA","OppScrA" ,"Win_NuA")]
+
+library(plyr)
+Opp <- rename(Opp, c( Opp_Name = "Team_Name", Opp_Goals = "Team_Goals", Opp_Points = "Team_Points", Opp_Score = "Team_Score",Win_NuA ="Win_Nu", OppA = "Opp",OppScrA = "Opp_Scr", OppGA ="Opp_G",OppPA = "Opp_P"))
+detach(package:plyr)
+
+All <-bind_rows(Team,Opp) 
+
+All
+
+#All_Time
+All_Time <- All %>%group_by(Team_Name) %>%summarize(GP =(count=n()),W = sum(Win_Nu == "2"),D = sum(Win_Nu == "1"),L = sum(Win_Nu == "0"),Total_Pts = sum(Win_Nu), Total_Score = sum(Team_Score), Total_Conc = sum(Opp_Scr),Scr_Dif = (Total_Score - Total_Conc),Ave_Score = mean(Team_Score),Ave_Opp = mean(Opp_Scr))
+
+All_Time %>% arrange(desc(Total_Pts))
+
+#All_League 
+All_League <-All%>%filter(Game_Type =="League")
+
+All_League <- All_League %>%group_by(Team_Name) %>%summarize(GP =(count=n()),W = sum(Win_Nu == "2"),D = sum(Win_Nu == "1"),L = sum(Win_Nu == "0"),Total_Pts = sum(Win_Nu), Total_Score = sum(Team_Score), Total_Conc = sum(Opp_Scr),Scr_Dif = (Total_Score - Total_Conc),Ave_Score = mean(Team_Score),Ave_Opp = mean(Opp_Scr))
+
+All_League %>% arrange(desc(Total_Pts))
+
+#By Year
+All2018 <- All %>%filter(Year=="2018", Division == "1",Game_Type =="League")
+All2018 <- All2018%>%group_by(Team_Name) %>%summarize(GP =(count=n()),W = sum(Win_Nu == "2"),D = sum(Win_Nu == "1"),L = sum(Win_Nu == "0"),Total_Pts = sum(Win_Nu), Total_Score = sum(Team_Score), Total_Conc = sum(Opp_Scr),Scr_Dif = (Total_Score - Total_Conc),Ave_Score = mean(Team_Score),Ave_Opp = mean(Opp_Scr))
+All2018 <- All2018 %>% arrange(desc(Total_Pts))
+All2018 
+
+#Fixtures
+scrs2018 <- scrs%>%filter(Year=="2018", Division == "1")
+scrs2018
+
+#Running Totals 
+
+lt2018 <- All%>%filter(Year=="2018",Game_Type == "League", Division == "1")
+run_tot2018 <- arrange(lt2018,Game_Round)
+run_tot2018 <- run_tot2018 %>% group_by(Team_Name) %>% mutate(Run_Pts = cumsum(Win_Nu),Run_Goals = cumsum(Team_Goals),Run_Points = cumsum(Team_Points))
+
+run_tot2018r4 <- run_tot2018 %>% filter(Game_Round == "4")
+run_tot2018r4 <- run_tot2018r4 %>% arrange(desc(Run_Pts))
+run_tot2018r4 <- run_tot2018r4 %>% select(Game_Round, Run_Pts, Run_Goals, Run_Points)
+run_tot2018r4
+
+#Creating a Verses Table 
+#All Time
+scrs <- read.csv(file="c:/pathtofile.csv", header=TRUE, sep=";")
+attach (scrs)
+
+#Cleaning
+
+scrs$Team_Name = str_to_title(scrs$Team_Name)
+scrs$Opp_Name = str_to_title(scrs$Opp_Name)
+scrs$Venue = str_to_title(scrs$Venue)
+scrs$Game_Round = str_to_title(scrs$Game_Round)
+
+scrs$Venue[scrs$Venue==""]<-"Unkown"
+
+scrs$Game_Type <- ifelse(grepl("Final", scrs$Game_Round), "Final", "League")
+
+#Adding Columns 
+scrs$Year <- str_sub(scrs$Date, -4)
+
+scrs <-scrs %>% mutate(Win_Team = ifelse(Team_Score > Opp_Score,as.character(scrs$Team_Name), ifelse(Team_Score < Opp_Score, as.character(scrs$Opp_Name),"Draw")))
+
+scrs <-scrs%>%mutate(Win_Marg =(abs ( scrs$Team_Score - scrs$Opp_Score )))
+
+scrsvs <-scrs %>% mutate(Win_Nu= ifelse(Team_Score > Opp_Score,2, ifelse(Team_Score < Opp_Score,0,1)))
+
+scrsvs <-scrsvs %>% mutate(Win_NuA = ifelse(Team_Score < Opp_Score,2, ifelse(Team_Score > Opp_Score,0,1)))
+
+scrsvs <-scrsvs %>% mutate(Opp = Opp_Name,OppA = Team_Name, Opp_Scr = Opp_Score,OppScrA = Team_Score,Opp_G = Opp_Goals,OppGA = Team_Goals,Opp_P = Opp_Points,OppPA = Team_Points)
+
+#Create a Dublin vs Kerry only Table
+dub <- scrsvs%>%filter(Team_Name == "Dublin",Opp_Name =="Kerry")
+ker <- scrsvs%>%filter(Team_Name == "Kerry",Opp_Name =="Dublin")
+dubker <- bind_rows(dub,ker)
+dubker
+
+#All in same rows 
+Team <-dubker [, c("Date" , "Game_Round", "Game_Type", "Year", "Division", "Team_Name", "Team_Goals", "Team_Points", "Team_Score", "Opp", "Opp_G", "Opp_P", "Opp_Scr", "Win_Nu")]
+Opp <- dubker [, c("Date" , "Game_Round", "Game_Type", "Year", "Division", "Opp_Name" , "Opp_Goals", "Opp_Points", "Opp_Score" , "OppA" , "OppGA" ,"OppPA","OppScrA" ,"Win_NuA")]
+
+
+library(plyr)
+
+Opp <- rename(Opp, c( Opp_Name = "Team_Name", Opp_Goals = "Team_Goals", Opp_Points = "Team_Points", Opp_Score = "Team_Score",Win_NuA ="Win_Nu", OppA = "Opp",OppScrA = "Opp_Scr", OppGA ="Opp_G",OppPA = "Opp_P"))
+
+detach(package:plyr)
+
+dubker <-bind_rows(Team,Opp) 
+
+All_Timedubker <- dubker %>%group_by(Team_Name) %>%summarize(GP =(count=n()),W = sum(Win_Nu == "2"),D = sum(Win_Nu == "1"),L = sum(Win_Nu == "0"),Total_Pts = sum(Win_Nu), Total_Score = sum(Team_Score), Total_Conc = sum(Opp_Scr),Scr_Dif = (Total_Score - Total_Conc),Ave_Score = mean(Team_Score),Ave_Opp = mean(Opp_Scr))
+
+All_Timedubker %>% arrange(desc(Total_Pts))
+
