@@ -1,6 +1,6 @@
 
-#All Time
-scrs <- read.csv(file="c:/pathtofile.csv", header=TRUE, sep=";")
+#All
+scrs <- read.csv(file="c:/pathtofile.csv", header=TRUE, sep=",")
 attach (scrs)
 
 #Cleaning
@@ -74,7 +74,7 @@ run_tot2018r4
 
 #Creating a Verses Table 
 #All Time
-scrs <- read.csv(file="c:/pathtofile.csv", header=TRUE, sep=";")
+scrs <- read.csv(file="c:/pathtofile.csv", header=TRUE, sep=",")
 attach (scrs)
 
 #Cleaning
