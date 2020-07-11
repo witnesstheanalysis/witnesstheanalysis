@@ -19,9 +19,6 @@ lines2 <- data.frame (x = c(20,30,40,50,60,70,80,90,100),
                       pitch = c(10,20,30,40,50,40,30,20,10),
                       rotate = c(2,2,2,2,2,2,2,2,2))
 
-lines1 <- lines %>% filter(rotate == "1")
-
-lines2 <- lines %>% filter(rotate == "2")
 
 create_LEAGUE_Pitch <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
   
