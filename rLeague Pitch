@@ -6,12 +6,24 @@ library(ggplot2)
 library(ggrepel)
 library(RColorBrewer)
 
-lines <- read.csv(file="c:/pathtocsvfile/leaguelines.csv", header=TRUE, sep=";")
-attach (lines)
 
-lines1 <- lines %>% filter(rotate == "1")
+lines <- data.frame (x = c(10,17,27,37,47,57,67,77,87,97,107,10,17,27,37,47,57,67,77,87,97,107,13,23,33,43,53,63,73,83,93,103,13,23,33,43,53,63,73,83,93,103,10,20,30,40,50,60,70,80,90,100,110),
+                     y = c(10,10,10,10,10,10,10,10,10,10,10,58,58,58,58,58,58,58,58,58,58,58,20,20,20,20,20,20,20,20,20,20,48,48,48,48,48,48,48,48,48,48,0,0,0,0,0,0,0,0,0,0,0),
+                     xend = c(13,23,33,43,53,63,73,83,93,103,110,13,23,33,43,53,63,73,83,93,103,110,17,27,37,47,57,67,77,87,97,107,17,27,37,47,57,67,77,87,97,107,10,20,30,40,50,60,70,80,90,100,110),
+                     yend = c(10,10,10,10,10,10,10,10,10,10,10,58,58,58,58,58,58,58,58,58,58,58,20,20,20,20,20,20,20,20,20,20,48,48,48,48,48,48,48,48,48,48,68,68,68,68,68,68,68,68,68,68,68))
 
-lines2 <- lines %>% filter(rotate == "2")
+
+lines1 <- data.frame (x = c(20,30,40,50,60,70,80,90,100),
+                      y = c(15,15,15,15,15,15,15,15,15),
+                      pitch = c(10,20,30,40,50,40,30,20,10),
+                      rotate = c(1,1,1,1,1,1,1,1,1))
+
+lines2 <- data.frame (x = c(20,30,40,50,60,70,80,90,100),
+                      y = c(53,53,53,53,53,53,53,53,53),
+                      pitch = c(10,20,30,40,50,40,30,20,10),
+                      rotate = c(2,2,2,2,2,2,2,2,2))
+
+
 
 create_LEAGUE_Pitch <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
   
@@ -86,10 +98,11 @@ create_LEAGUE_Pitch <- function(grass_colour, line_colour, background_colour, go
       annotate(geom="text", x= 5, y=34, label="www.witnesstheanalysis.com",color = label_colour,size = 8, alpha = 0.4, angle=90) +
       annotate(geom="text", x= 115, y=34, label="www.witnesstheanalysis.com",color = label_colour,size = 8, alpha = 0.4, angle=270) +
       annotate(geom="text", x= 60, y=4, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 60, y=66, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4)
+      annotate(geom="text", x= 60, y=66, label="www.witnesstheanalysis.com",color = label_colour,size = 6, alpha = 0.4) +
+       annotate("segment", x = 56, xend = 66, y = 2, yend = 2, colour = "pink", size=3, alpha=0.6, arrow=arrow())
   }
   
   return(np)}
 
 
-np <- create_LEAGUE_Pitch("#A2CD5A", "white", "black", "blue","red","white", BasicFeatures=TRUE)
+np <- create_LEAGUE_Pitch("#A2CD5A", "white", "lightblue", "blue","red","white", BasicFeatures=FALSE)
