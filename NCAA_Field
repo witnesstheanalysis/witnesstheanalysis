@@ -1,0 +1,150 @@
+#Add packages 
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+
+# Vertical Lines 
+lines <-  data.frame(
+    x = rep(seq(10, 110, 5), 1),
+    y = rep(0, 21),
+    xend = rep(seq(10, 110, 5), 1),
+    yend = rep(53.3,21))
+ 
+# Line Numbers  
+lines1 <- data.frame (x =  rep(seq(20, 100, 10), 1),
+                      y = rep(9, 9),
+                      pitch = c(10,20,30,40,50,40,30,20,10),
+                      rotate = rep(1, 9))
+# Line Numbers 
+lines2 <- data.frame (x = rep(seq(20, 100,10), 1),
+                      y = rep(44.33, 9),
+                      pitch = c(10,20,30,40,50,40,30,20,10),
+                      rotate = rep(2, 9))
+
+# Hash Lines
+hashes1 <-  data.frame(
+    Rsx = rep(seq(10, 110, 1), 1),
+    Rsy = rep(0.33, 101),
+    Rsxend = rep(seq(10, 110, 1), 1),
+    Rsyend = rep(1.33, 101),
+    Rmx = rep(seq(10, 110, 1), 1),
+    Rmy = rep(20, 101),
+    Rmxend = rep(seq(10, 110, 1), 1),
+    Rmyend = rep(19, 101),
+    Lsx = rep(seq(10, 110, 1), 1),
+    Lsy = rep(53, 101),
+    Lsxend = rep(seq(10, 110, 1), 1),
+    Lsyend = rep(52, 101),
+    Lmx = rep(seq(10, 110, 1), 1),
+    Lmy = rep(33.33, 101),
+    Lmxend = rep(seq(10, 110, 1), 1),
+    Lmyend = rep(34.33, 101))
+
+   # Two Yard Line
+twoyrd <- data.frame( 
+    Lx = rep(12, 1),
+    Ly = rep(26, 101),
+    Lxend = rep(12, 1),
+    Lyend = rep(27.33, 101),
+    Rx = rep(108, 1),
+    Ry = rep(26, 101),
+    Rxend = rep(108, 1),
+    Ryend = rep(27.33, 101))
+    
+  # Field Size   
+  ymin <- 0 # minimum width
+  ymax <- 53.33 # maximum width
+  xmin <- 0 # minimum length
+  xmax <- 120 # maximum length
+
+
+  # Goals
+  glxst <- 0
+  glyst <- 23.58
+  glxed <- 120
+  glyed <- 29.74
+
+  # Redzone
+  Lrz <- 30
+  Rrz <- 90
+
+
+create_NCAA_FIELD <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
+
+  theme_blankPitch = function(size=12) {
+    theme(
+      #axis.line=element_blank(),
+      axis.text.x=element_blank(),
+      axis.text.y=element_blank(),
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"),
+      #axis.ticks.margin=unit(0, "lines"),
+      axis.title.x=element_blank(),
+      axis.title.y=element_blank(),
+      legend.key.size=unit(1.2, "lines"),
+      legend.text=element_text(size=size),
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(),
+      panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.spacing=element_blank(),
+      plot.margin=unit(c(0, 0, 0, 0), "lines"),
+      plot.title=element_text(size=size*1.2),
+      panel.background=element_rect(fill= background_colour,colour= background_colour),
+      strip.text.x=element_text(size=size*1))}
+
+
+  if(BasicFeatures == TRUE){
+    ## initiate the plot, set some boundries to the plot
+    np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme
+      theme_blankPitch() +
+      # add lines etc
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour,size = 0.5) +
+      geom_segment(data = lines, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
+      geom_segment(data = hashes1, aes(x = Rsx, y = Rsy, xend = Rsxend, yend = Rsyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = hashes1, aes(x = Rmx, y = Rmy, xend = Rmxend, yend = Rmyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = hashes1, aes(x = Lsx, y = Lsy, xend = Lsxend, yend = Lsyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = hashes1, aes(x = Lmx, y = Lmy, xend = Lmxend, yend = Lmyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = twoyrd, aes(x = Lx, y = Ly, xend = Lxend, yend = Lyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = twoyrd, aes(x = Rx, y = Ry, xend = Rxend, yend = Ryend), colour = line_colour,size = 0.5) +
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      geom_text(data = lines1, aes(x=x, y=y, label = pitch), size = 8, colour = line_colour,) +
+      geom_text(data = lines2, aes(x=x, y=y, label = pitch), size = 8, colour = line_colour, angle=180)+
+      annotate(geom="text", x= 5, y=26.65, label="GO TEAM",color = goala_colour ,size = 20, alpha = 0.4, angle=90) +
+      annotate(geom="text", x= 115, y=26.65, label="GO TEAM",color = goalb_colour,size = 20, alpha = 0.4, angle=270)  
+
+
+  }
+
+  else{
+    ## initiate the plot, set some boundries to the plot
+    np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme
+      theme_blankPitch() +
+      # add lines etc
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour,size = 0.5) +
+      geom_segment(data = lines, aes(x = x, y = y, xend = xend, yend = yend), colour = line_colour,size = 0.5) +
+      geom_segment(data = hashes1, aes(x = Rsx, y = Rsy, xend = Rsxend, yend = Rsyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = hashes1, aes(x = Rmx, y = Rmy, xend = Rmxend, yend = Rmyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = hashes1, aes(x = Lsx, y = Lsy, xend = Lsxend, yend = Lsyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = hashes1, aes(x = Lmx, y = Lmy, xend = Lmxend, yend = Lmyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = twoyrd, aes(x = Lx, y = Ly, xend = Lxend, yend = Lyend), colour = line_colour,size = 0.5) +
+      geom_segment(data = twoyrd, aes(x = Rx, y = Ry, xend = Rxend, yend = Ryend), colour = line_colour,size = 0.5) +
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      geom_segment(aes(x = Lrz, y = ymin, xend = Lrz, yend = ymax), colour = goala_colour,size = 0.5) +
+      geom_segment(aes(x = Rrz, y = ymin, xend = Rrz, yend = ymax), colour = goalb_colour,size = 0.5) +
+      geom_text(data = lines1, aes(x=x, y=y, label = pitch), size = 8, colour = line_colour) +
+      geom_text(data = lines2, aes(x=x, y=y, label = pitch), size = 8, colour = line_colour, angle=180)+
+      annotate(geom="text", x= 5, y=26.65, label="GO TEAM",color = goala_colour ,size = 20, alpha = 0.4, angle=90) +
+      annotate(geom="text", x= 115, y=26.65, label="GO TEAM",color = goalb_colour,size = 20, alpha = 0.4, angle=270)  
+
+  }
+
+  return(np)}
+
+
+ncaa <- create_NCAA_FIELD("#A2CD5A", "white", "lightblue", "blue","red","white", BasicFeatures=TRUE)
