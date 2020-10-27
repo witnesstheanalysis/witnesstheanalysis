@@ -5,6 +5,7 @@ library(tidyverse)
 
 ## Dimensions are in Yards 
 ## Any feedback or errors that need correcting - @WtAnalysis
+## Some more data - https://witnesstheanalysis.wordpress.com/2020/10/27/american-football-fields-and-data/
 
 # Vertical Lines
 lines <-  data.frame(
