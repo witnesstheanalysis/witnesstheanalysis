@@ -3,7 +3,8 @@ library(ggplot2)
 library(dplyr)
 library(tidyverse)
 
-
+## Dimensions are in Yards 
+## Any feedback or errors that need correcting - @WtAnalysis
 
 # Vertical Lines
 lines <-  data.frame(
