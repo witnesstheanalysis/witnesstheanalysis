@@ -65,6 +65,8 @@ ht = 35
 match <- read.csv(file="PATHTOFILE.csv", header=TRUE, sep=";")
 attach (match)
 
+# When closing r dont save the workspace 
+
 #Change Ko Rec to Ko Won 
 
 match$outcome<- as.character(match$outcome)
