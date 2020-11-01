@@ -1,0 +1,749 @@
+
+# Contact Detals 
+
+If you have any questions or corrections you can get in touch through the following 
+
+witnesstheanalysis@gmail.com
+
+https://twitter.com/WtAnalysis
+
+https://witnesstheanalysis.wordpress.com/ - there are other ideas for what to do with the data here
+
+You can create the charts etc individually once you have run parts 1-4 or alternatively you can create an Rmarkdown document and knit it as either a html or a pdf  
+
+## Some Links ##
+
+https://rmarkdown.rstudio.com/lesson-1.html
+
+# Getting Started
+
+##Install if needed and before knitting (only needs to be done once)  - remove #
+
+#Delete these lines once install.packages are installed 
+
+#install.packages('ggplot2')
+
+#install.packages('tidyverse')
+
+#install.packages('kableExtra')
+
+#install.packages('ggrepel')
+
+#install.packages('tinytex')
+
+# 1 Load Libraries ## 
+
+```{r setup, include=TRUE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, options(knitr.kable.NA = ''))
+
+## Load Libraries ## 
+
+library(ggplot2)
+library(tidyverse)
+library(kableExtra)
+library(ggrepel)
+library (tinytex)
+
+```
+
+## 2 Data 
+
+```{r}
+
+## Set team names and Half time (minute) ##
+
+# Enter team names here - changes A/B to Team names
+
+Team1 = "Team A"
+Team2 = "Team B"
+ht = 35
+
+## Load Data ##
+
+# Depending on how you save csv files or if you have downloaded the scrs file from above you may need to change this part sep=";" to sep=",")
+
+match <- read.csv(file="PATHTOFILE.csv", header=TRUE, sep=";")
+attach (match)
+
+#Change Ko Rec to Ko Won 
+
+match$outcome<- as.character(match$outcome)
+
+match <- match %>% mutate(outcome =
+ifelse(outcome == "Ko Rec","Ko Won", match$outcome))
+
+
+# Create a new colomn for team names
+# Keep A|B for quicker filtering 
+
+match <- match %>% mutate(team =ifelse(team == "A",Team1,Team2))
+
+# Set Half
+
+match <- match%>% mutate(half =ifelse(time <= ht,1, ifelse(time > ht,2,"time")))
+
+## Direction ##
+# If you want both halves to go in the same direction 
+# This can help with comparisons
+
+match <- match %>%mutate(areax=ifelse(team == Team1 & half == 1,X,ifelse(team == Team2 & half == 1,144-X
+,ifelse(team == Team1 & half == 2,144-X,ifelse(team == Team2 & half == 2,X,X)))))
+
+match <-match %>%mutate(areay=ifelse(team == Team1 & half == 1,Y,ifelse(team == Team2 & half == 1,98-Y
+,ifelse(team == Team1 & half == 2,98-Y,ifelse(team == Team2 & half == 2,Y,Y)))))
+
+## Zones ##
+# Starting in the bottom left corner
+
+match <- match %>% mutate(zone =
+ifelse(areax >=0 & areax <=19.99& areay >=0 & areay <=17.99,1, 
+ifelse(areax >=0 & areax <=19.99& areay >=18 & areay <=35.99,2, 
+ifelse(areax >=0 & areax <=19.99& areay >=36 & areay <=61.99,3, 
+ifelse(areax >=0 & areax <=19.99& areay >=62 & areay <=79.99,4, 
+ifelse(areax >=0 & areax <=19.99& areay >=80 & areay <=98,5, 
+ifelse(areax >=20 & areax <=44.99& areay >=0 & areay <=17.99,6, 
+ifelse(areax >=20 & areax <=44.99& areay >=18 & areay <=35.99,7, 
+ifelse(areax >=20 & areax <=44.99& areay >=36 & areay <=61.99,8, 
+ifelse(areax >=20 & areax <=44.99& areay >=62 & areay <=79.99,9, 
+ifelse(areax >=20 & areax <=44.99& areay >=80 & areay <=98,10, 
+ifelse(areax >=45 & areax <=71.99& areay >=0 & areay <=17.99,11, 
+ifelse(areax >=45 & areax <=71.99& areay >=18 & areay <=35.99,12, 
+ifelse(areax >=45 & areax <=71.99& areay >=16 & areay <=61.99,13, 
+ifelse(areax >=45 & areax <=71.99& areay >=62 & areay <=79.99,14, 
+ifelse(areax >=45 & areax <=71.99& areay >=80 & areay <=98,15, 
+ifelse(areax >=72 & areax <=98.99& areay >=0 & areay <=17.99,16, 
+ifelse(areax >=72 & areax <=98.99& areay >=18 & areay <=35.99,17, 
+ifelse(areax >=72 & areax <=98.99& areay >=36 & areay <=61.99,18, 
+ifelse(areax >=72 & areax <=98.99& areay >=62 & areay <=79.99,19, 
+ifelse(areax >=72 & areax <=98.99& areay >=80 & areay <=98,20, 
+ifelse(areax >=99 & areax <=123.99& areay >=0 & areay <=17.99,21, 
+ifelse(areax >=99 & areax <=123.99& areay >=18 & areay <=35.99,22, 
+ifelse(areax >=99 & areax <=123.99& areay >=36 & areay <=61.99,23, 
+ifelse(areax >=99 & areax <=123.99& areay >=62 & areay <=79.99,24, 
+ifelse(areax >=99 & areax <=123.99& areay >=80 & areay <=98,25, 
+ifelse(areax >=124 & areax <=144& areay >=0 & areay <=17.99,26, 
+ifelse(areax >=124 & areax <=144& areay >=18 & areay <=35.99,27, 
+ifelse(areax >=124 & areax <=144& areay >=36 & areay <=61.99,28, 
+ifelse(areax >=124 & areax <=144& areay >=62 & areay <=79.99,29, 
+ifelse(areax >=124 & areax <=144& areay >=80 & areay <=98,30
+,"No_Zone")))))))))))))))))))))))))))))))
+
+## Combining Player & Outcome ##
+
+match = match %>% 
+   unite(plyact, player, outcome, sep = " ", remove = FALSE)
+   
+
+
+
+```
+
+## 3 Create a Pitch
+
+```{r}
+
+## Load Pitch ## 
+
+
+#Pitch
+
+create_GAA_Pitch <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,tram_colour,label_colour, BasicFeatures){
+  
+  theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill= background_colour,colour= background_colour),
+      strip.text.x=element_text(size=size*1))}
+
+  ymin <- 0 # minimum width
+  ymax <- 98 # maximum width
+  xmin <- 0 # minimum length
+  xmax <- 144 # maximum length
+  
+  # pitch lines
+  def13 <- 13
+  def20 <- 20
+  def45 <- 45
+  def65 <- 65
+  off65 <- 79
+  off45 <- 99
+  off20 <- 124
+  off13 <- 131
+  
+  
+  # small sqaure
+
+  sixYardrd <- 42
+  sixYardld <- 56
+  sixYardDefxst <- 4.5
+  sixYardOffxst <- 139.5
+
+  #13 box
+  right14d <- 39.5
+  left14d <- 58.5
+
+  #Goals
+  glxst <- 0
+  glyst <- 45.75
+  glxed <- 144
+  glyed <- 52.25
+
+  #halfway line
+  hwxst <- 72
+  hwyst <- 45.75
+  hwyed <- 52.25
+
+  #pen spot
+
+  pdxst <- 11
+  pdyst <- 48.5
+  pdyed <- 49.5
+  poxst <- 133
+  
+# tramlines
+  srwing <- 18
+  rhalfsp <- 36
+  ctre <- 62
+  lhalfsp <- 80
+  hw <- 72
+      
+  circleFundef <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=2)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] + diameter / 2 * cos(tt), 
+               y = center[2] + diameter / 2 * sin(tt))
+  }
+  
+  circleFunatt <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=2)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] - diameter / 2 * cos(tt), 
+               y = center[2] - diameter / 2 * sin(tt))
+  }
+  #### create semi circle ####
+  def_circle <-  circleFundef(c(20,49), 26, start=1.5, end=2.5)
+  att_circle <-  circleFunatt(c(124,49), 26, start=1.5, end=2.5)
+  
+  if(BasicFeatures == TRUE){
+    ## initiate the plot, set some boundries to the plot
+    np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      # add lines goals etc
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
+      geom_segment(aes(x = def13, y = ymin, xend = def13, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = def20, y = ymin, xend = def20, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = def45, y = ymin, xend = def45, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = def65, y = ymin, xend = def65, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = off65, y = ymin, xend = off65, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = off45, y = ymin, xend = off45, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = off20, y = ymin, xend = off20, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = off13, y = ymin, xend = off13, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = right14d, xend = def13, yend = right14d),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = left14d, xend = def13, yend = left14d),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = right14d, xend = off13, yend = right14d),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = left14d, xend = off13, yend = left14d),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = hwxst, y = hwyst, xend = hwxst, yend = hwyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = xmin, y = sixYardrd, xend = sixYardDefxst, yend = sixYardrd),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = xmin, y = sixYardld, xend = sixYardDefxst, yend = sixYardld),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = sixYardDefxst, y = sixYardrd, xend = sixYardDefxst, yend = sixYardld),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = xmax, y = sixYardrd, xend = sixYardOffxst, yend = sixYardrd),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = xmax, y = sixYardld, xend = sixYardOffxst, yend = sixYardld),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = sixYardOffxst, y = sixYardrd, xend = sixYardOffxst, yend = sixYardld),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = pdxst, y = pdyst, xend = pdxst, yend = pdyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = poxst, y = pdyst, xend = poxst, yend = pdyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      geom_path(data=def_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      geom_path(data=att_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      annotate(geom="text", x= 21.5, y=1.25, label="20",color = label_colour,size = 4) +
+      annotate(geom="text", x= 46.5, y=1.25, label="45",color = label_colour,size = 4) +
+      annotate(geom="text", x= 66.5, y=1.25, label="65",color = label_colour,size = 4) +
+      annotate(geom="text", x= 80.5, y=1.25, label="65",color = label_colour,size = 4) +
+      annotate(geom="text", x=100.5, y=1.25, label="45", color=label_colour,size = 4) +
+      annotate(geom="text", x=125.5, y=1.25, label="20",color = label_colour,size = 4) +
+      annotate(geom="text", x= 131, y=4, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) +
+      annotate(geom="text", x= 12, y=96, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4)
+    
+  }
+  
+  else{
+    ## initiate the plot, set some boundries to the plot
+     np <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      # add lines goals etc
+            geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
+      geom_segment(aes(x = def13, y = ymin, xend = def13, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = def20, y = ymin, xend = def20, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = def45, y = ymin, xend = def45, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = def65, y = ymin, xend = def65, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = off65, y = ymin, xend = off65, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = off45, y = ymin, xend = off45, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = off20, y = ymin, xend = off20, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = off13, y = ymin, xend = off13, yend = ymax),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = right14d, xend = def13, yend = right14d),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = left14d, xend = def13, yend = left14d),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = right14d, xend = off13, yend = right14d),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = left14d, xend = off13, yend = left14d),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = hwxst, y = hwyst, xend = hwxst, yend = hwyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = xmin, y = sixYardrd, xend = sixYardDefxst, yend = sixYardrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = sixYardld, xend = sixYardDefxst, yend = sixYardld),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = sixYardDefxst, y = sixYardrd, xend = sixYardDefxst, yend = sixYardld),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = xmax, y = sixYardrd, xend = sixYardOffxst, yend = sixYardrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = sixYardld, xend = sixYardOffxst, yend = sixYardld),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = sixYardOffxst, y = sixYardrd, xend = sixYardOffxst, yend = sixYardld),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = pdxst, y = pdyst, xend = pdxst, yend = pdyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = poxst, y = pdyst, xend = poxst, yend = pdyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      geom_segment(aes(x = xmin, y = srwing, xend = xmax, yend = srwing),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = xmin, y = rhalfsp, xend = xmax, yend = rhalfsp),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = xmin, y = ctre, xend = xmax, yend = ctre),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = xmin, y = lhalfsp, xend = xmax, yend = lhalfsp),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = hw, y = ymin, xend = hw, yend = ymax),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_path(data=def_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      geom_path(data=att_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      annotate(geom="text", x= 21.5, y=1.25, label="20",color = label_colour,size = 4) +
+      annotate(geom="text", x= 46.5, y=1.25, label="45",color = label_colour,size = 4) +
+      annotate(geom="text", x= 66.5, y=1.25, label="65",color = label_colour,size = 4) +
+      annotate(geom="text", x= 80.5, y=1.25, label="65",color = label_colour,size = 4) +
+      annotate(geom="text", x=100.5, y=1.25, label="45", color=label_colour,size = 4) +
+      annotate(geom="text", x=125.5, y=1.25, label="20",color = label_colour,size = 4) +
+      annotate(geom="text", x= 100, y=2, label="www.witnesstheanalysis.com",color = "white",size = 2, alpha = 0.4) +
+      annotate(geom="text", x= 12, y=97, label="www.witnesstheanalysis.com",color = "white",size = 2, alpha = 0.4)
+  }
+  
+  return(np)}
+
+pitch <- create_GAA_Pitch("gray72", "white", "lightblue", "blue","red","blue","white", BasicFeatures=FALSE)
+
+```
+
+## 4 Create Colour and Shape Scales
+
+```{r}
+# Creating a Colour and Shape Scale 
+
+# These keep the colours and shapes uniform throughout (they can be changed)
+
+shotcol <- c(
+"Goal"= "lightblue",
+"Point"= "lightgreen",
+"Miss"="red",
+"Fk Goal"="darkblue",
+"Fk Point"="darkgreen",
+"Fk Miss"="darkred",
+"Ko Won"="orange",
+"Ko Lost"="lightcoral")
+
+shotshape <- c(
+"Goal" = 19,
+"Point" = 15,
+"Miss" = 17,
+"Fk Goal" = 19,
+"Fk Point" = 15,
+"Fk Miss" = 17,
+"Ko Won"= 19,
+"Ko Lost"= 17)
+
+```
+
+
+## 5 Filtering 
+
+```{r}
+
+# Filter by team - creates a separate data frames for each team
+
+TeamA <- match %>% filter (team == Team1)
+TeamB <- match %>% filter (team == Team2)
+ 
+
+
+```
+
+## 6 Graphs  
+
+```{r}
+## Graphs ## 
+
+# Create a theme for the graph - this sets things like the background, grid, text size etc
+
+my_theme <- function(){
+  theme_light() +
+    theme(legend.position="bottom",
+          text = element_text(),  
+          panel.grid = element_blank(),
+          panel.border = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text.x = element_text(vjust = 0.5, hjust=1,size = 15),
+          axis.text.y = element_text(size = 15),
+          plot.title =  element_text(size = 20, color = "black", hjust = 0.5))} 
+
+# Create Graph 
+
+## Filter the data
+
+teamall <- match %>% group_by(team, outcome) %>% summarise (count = n())
+
+## Create the graph
+
+teamallgph <-ggplot(data = teamall , aes(factor(team), y = count, fill = outcome)) +
+geom_bar(stat = "identity", width = 0.90) +  
+geom_text(aes(label = count, group =outcome), color = "white",position = position_stack(vjust = 0.5), size = 10) + 
+labs(title = "All Counts") +   
+my_theme () +
+xlab("Team") + ylab("Count") +
+scale_fill_manual(values = shotcol) 
+
+## Show the graph
+
+teamallgph
+
+teamko <- match %>% group_by(team, outcome)  %>% filter(outcome %in% c("Ko Won","Ko Lost")) %>% summarise (count = n())
+
+teamkogph <- ggplot(data = teamko, aes(factor(team), y = count, fill = outcome)) +
+  geom_bar(stat = "identity", width = 0.90) +  
+geom_text(aes(label = count, group =outcome), color = "white",position = position_stack(vjust = 0.5), size = 10) + 
+labs(title = "Kick Outs") +   
+my_theme () +
+xlab("Team") + ylab("Count") +
+scale_fill_manual(values = shotcol)  
+
+teamkogph
+
+teamshot <- match %>% group_by(team, outcome)  %>% filter(outcome %in% c("Goal","Point", "Miss")) %>% summarise (count = n())
+
+teamshotgph <-ggplot(data = teamshot, aes(factor(team), y = count, fill = outcome)) +
+  geom_bar(stat = "identity", width = 0.90) +  
+geom_text(aes(label = count, group =outcome), color = "white",position = position_stack(vjust = 0.5), size = 10) + 
+labs(title = "Open Play Shots") +   
+my_theme () +
+xlab("Team") + ylab("Count") +
+scale_fill_manual(values = shotcol) 
+
+teamshotgph
+
+
+teamfk <- match %>% group_by(team, outcome)  %>% filter(outcome %in% c("Fk Goal","Fk Point", "Fk Miss")) %>% summarise (count = n())
+
+teamfkgph <-ggplot(data = teamfk, aes(factor(team), y = count, fill = outcome)) +
+geom_bar(stat = "identity", width = 0.90) +  
+geom_text(aes(label = count, group =outcome), color = "white",position = position_stack(vjust = 0.5), size = 10) + 
+labs(title = "Free Kick Shots") +   
+my_theme () +
+xlab("Team") + ylab("Count")+
+scale_fill_manual(values = shotcol) 
+
+teamfkgph
+
+
+```
+
+## 7 Tables
+
+```{r}
+## Tables with counts ##
+
+# This creates a data frame of different counts for - Team A
+
+TeamAtab <- match %>% filter (team == Team1)
+
+TeamAcnts  <- TeamAtab %>%group_by(team)%>%summarize(
+Ko_Rec = sum(outcome =="Ko Won"),
+Ko_Lost = sum (outcome == "Ko Lost"),
+Tot_Ko =  (Ko_Rec + Ko_Lost), 
+Goal = sum(outcome == "Goal"),
+Point = sum(outcome == "Point"),
+Miss = sum(outcome == "Miss"),
+Tot_OpShots = (Goal + Point + Miss),
+Fk_Goal = sum(outcome == "Fk Goal"),
+Fk_Point = sum(outcome =="Fk Point"),
+Fk_Miss = sum(outcome =="Fk Miss"),
+Tot_FkShots = (Fk_Goal +Fk_Point + Fk_Miss),
+Tot_Shots = (Tot_OpShots + Tot_FkShots))
+
+
+# Kickouts 
+
+## Filter the data 
+
+TeamAKocnts <-TeamAcnts %>% select(team,Ko_Rec,Ko_Lost, Tot_Ko)
+
+## Remane some of the column headings
+
+TeamAKocnts <- rename(TeamAKocnts,"Team"= team, "Ko Won" = Ko_Rec, "Ko Lost" = Ko_Lost, "Total Ko" = Tot_Ko)
+
+## Create the table 
+
+TeamAKocntstabs <- TeamAKocnts  %>%
+  kbl(caption = "Kickouts", align = "c") %>%
+    kable_minimal()
+
+## Show the Table
+
+TeamAKocntstabs
+
+# Shots
+    
+TeamAShtscnts <-TeamAcnts %>% select(team,Tot_OpShots, Goal, Point, Miss, Fk_Goal,Fk_Point,Fk_Miss,Tot_FkShots,Tot_Shots)
+
+TeamAShtscnts <- rename(TeamAShtscnts,"Team"= team, "Total OP Shots" = Tot_OpShots, 
+"Fk Goal" = Fk_Goal,"Fk Point" = Fk_Point,"Fk Miss" = Fk_Miss,"Tot Fk Shots" = Tot_FkShots,"All Shots" = Tot_Shots)
+
+TeamAShtscntstab <-TeamAShtscnts  %>%
+  kbl(caption = "Shots", align = "c") %>%
+    kable_minimal()
+
+TeamAShtscntstab 
+    
+# All 
+
+TeamAcnts <- rename(TeamAcnts,"Team"= team, "Ko Won" = Ko_Rec, "Ko Lost" = Ko_Lost, "Total Ko" = Tot_Ko, "Total OP Shots" = Tot_OpShots, 
+"Fk Goal" = Fk_Goal,"Fk Point" = Fk_Point,"Fk Miss" = Fk_Miss,"Tot Fk Shots" = Tot_FkShots,"All Shots" = Tot_Shots)
+
+TeamAcntstab <- TeamAcnts  %>%
+  kbl(caption = "All Outcomes", align = "c") %>%
+    kable_minimal()
+
+TeamAcntstab
+    
+# Team B
+
+TeamBtab <- match %>% filter (team == Team2)
+
+TeamBcnts  <- TeamBtab %>%group_by(team)%>%summarize(
+Ko_Rec = sum(outcome =="Ko Won"),
+Ko_Lost = sum (outcome == "Ko Lost"),
+Tot_Ko =  (Ko_Rec + Ko_Lost), 
+Goal = sum(outcome == "Goal"),
+Point = sum(outcome == "Point"),
+Miss = sum(outcome == "Miss"),
+Tot_OpShots = (Goal + Point + Miss),
+Fk_Goal = sum(outcome == "Fk Goal"),
+Fk_Point = sum(outcome =="Fk Point"),
+Fk_Miss = sum(outcome =="Fk Miss"),
+Tot_FkShots = (Fk_Goal +Fk_Point + Fk_Miss),
+Tot_Shots = (Tot_OpShots + Tot_FkShots))
+
+
+# Kickouts 
+
+TeamBKocnts <-TeamBcnts %>% select(team,Ko_Rec,Ko_Lost, Tot_Ko)
+
+TeamBKocnts <- rename(TeamBKocnts,"Team"= team, "Ko Won" = Ko_Rec, "Ko Lost" = Ko_Lost, "Total Ko" = Tot_Ko)
+
+TeamBKocntstab <-TeamBKocnts  %>%
+  kbl(caption = "Kickouts", align = "c") %>%
+    kable_minimal()
+
+TeamBKocntstab
+
+# Shots
+    
+TeamBShtscnts <-TeamBcnts %>% select(team, Tot_OpShots, Goal, Point, Miss, Fk_Goal,Fk_Point,Fk_Miss,Tot_FkShots,Tot_Shots)
+
+TeamBShtscnts <- rename(TeamBShtscnts,"Team"= team, "Total OP Shots" = Tot_OpShots, 
+"Fk Goal" = Fk_Goal,"Fk Point" = Fk_Point,"Fk Miss" = Fk_Miss,"Tot Fk Shots" = Tot_FkShots,"All Shots" = Tot_Shots)
+
+TeamBShtscntstab <-TeamBShtscnts  %>%
+  kbl(caption = "Shots", align = "c") %>%
+    kable_minimal()
+
+TeamBShtscntstab
+    
+# All 
+
+TeamBcnts <- rename(TeamBcnts,"Team"= team, "Ko Won" = Ko_Rec, "Ko Lost" = Ko_Lost, "Total Ko" = Tot_Ko, "Total OP Shots" = Tot_OpShots, 
+"Fk Goal" = Fk_Goal,"Fk Point" = Fk_Point,"Fk Miss" = Fk_Miss,"Tot Fk Shots" = Tot_FkShots,"All Shots" = Tot_Shots)
+
+TeamBcntstab <- TeamBcnts  %>%
+  kbl(caption = "All Outcomes", align = "c") %>%
+    kable_minimal()
+
+TeamBcntstab
+
+```
+
+## 8 Player Counts
+   
+```{r}
+
+## Player Counts ## 
+
+## Create a theme 
+
+ply_theme <- function(){
+  theme_light() +
+    theme(legend.position="bottom",
+          text = element_text(),  
+          panel.grid = element_blank(),
+          panel.border = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1,size = 15),
+          axis.text.y = element_text(size = 15),
+          plot.title =  element_text(size = 20, color = "black", hjust = 0.5))}   
+          
+
+## Filter the data 
+
+plyAcnts <- TeamA %>% group_by(team,player, outcome) %>% summarise (count = n())
+
+## Create the graph
+
+plyAcntsgph <-ggplot(data = plyAcnts, aes(factor(player), y = count, fill = outcome)) +
+labs(title = "Team A - Player Counts") +   
+geom_bar(stat = "identity", width = 0.90) +  
+geom_text(aes(label = count, group =outcome), color = "white",position = position_stack(vjust = 0.5), size = 10) + 
+ply_theme () +
+xlab("Player") + ylab("Count") +
+scale_fill_manual(values = shotcol) 
+
+## Show the graph
+
+plyAcntsgph
+
+plyBcnts <- TeamB %>% group_by(team,player, outcome) %>% summarise (count = n())
+
+plyBcntsgph <-ggplot(data = plyBcnts, aes(factor(player), y = count, fill = outcome)) +
+labs(title = "Team B - Player Counts") +   
+geom_bar(stat = "identity", width = 0.90) +  
+geom_text(aes(label = count, group =outcome), color = "white",position = position_stack(vjust = 0.5), size = 10) + 
+ply_theme () +
+xlab("Player") + ylab("Count") +
+scale_fill_manual(values = shotcol)
+
+plyBcntsgph
+
+```
+
+## 9 Shots per Zone
+
+```{r}
+
+## Shots per Zone ##
+
+zoneallA <- TeamA %>% group_by(team, outcome,zone)%>% filter (outcome %in% c("Goal","Point", "Miss")) %>% summarise (count = n())
+
+zoneallAtab  <-zoneallA  %>%
+  kbl(caption = "Shots - Zones", align = "c") %>%
+    kable_minimal()
+
+zoneallAtab 
+
+
+zoneallB <- TeamB %>% group_by(team, outcome,zone)%>% filter (outcome %in% c("Goal","Point", "Miss")) %>% summarise (count = n())
+
+
+zoneallBtab  <-zoneallB  %>%
+  kbl(caption = "Shots - Zones", align = "c") %>%
+    kable_minimal()
+
+zoneallBtab 
+```
+
+## 10 Pitch
+
+```{r, fig.width = 16, fig.height = 12}
+    
+## Pitch ##
+
+# Plotting on to a Pitch 
+
+# If you want to show the points in the direction of the half use X|Y instead areax|areay for x = & y = 
+
+# Ko's - Team A
+
+## Filter the data
+
+TeamAKo <- match %>% filter (team == Team1, outcome %in% c("Ko Won","Ko Lost"))
+
+## Create the pitch and plot the data
+
+TeamAKoplt <- pitch + geom_point(data = TeamAKo, aes(x= areax, y=areay, colour = as.factor(outcome), shape = outcome), size = 10, stroke = 2) + 
+    geom_text(data= TeamAKo, aes(x= areax, y=areay, label = player),colour = "black", size = 6) +
+    scale_colour_manual(values = shotcol) +
+    scale_shape_manual(values = shotshape) +
+    theme(legend.position="bottom", legend.title=element_text(size=15), 
+          legend.text=element_text(size=20),plot.title = element_text( size=32, hjust=0.5)) +
+    labs(title = "Kickouts - Team A",colour="Outcome") +
+    guides(size = FALSE, shape = FALSE) +
+    guides(colour = guide_legend(override.aes = list(size = 10))) 
+
+## Show the pitch
+
+TeamAKoplt
+    
+    
+# Ko's - Team B
+
+TeamBKo <- match %>% filter (team == Team2, outcome %in% c("Ko Won", "Ko Lost"))
+
+TeamBKoplt <-pitch + geom_point(data = TeamBKo, aes(x= areax, y=areay, colour = as.factor(outcome), shape = outcome), size = 10) + 
+    geom_text(data= TeamBKo, aes(x= areax, y=areay, label = player),colour = "black", size = 6) +
+    scale_colour_manual(values = shotcol) +
+    scale_shape_manual(values = shotshape) +
+    theme(legend.position="bottom", legend.title=element_text(size=15), 
+          legend.text=element_text(size=20),plot.title = element_text( size=32, hjust=0.5)) +
+    labs(title = "Kickouts - Team B",colour="Outcome") +
+    guides(size = FALSE, shape = FALSE) +
+    guides(colour = guide_legend(override.aes = list(size = 10))) 
+
+TeamBKoplt 
+    
+    
+# Shots - Team A
+
+TeamAShot <- match %>% filter (team == Team1, outcome %in% c("Goal","Point","Miss","Fk Goal","Fk Point","Fk Miss"))
+
+TeamAShotplt <-pitch + geom_point(data = TeamAShot, aes(x= areax, y=areay, colour = as.factor(outcome), shape = outcome), size = 10) + 
+    geom_text(data= TeamAShot, aes(x= areax, y=areay, label = player),colour = "white", size = 6) +
+    scale_colour_manual(values = shotcol) +
+    scale_shape_manual(values = shotshape) +
+    theme(legend.position="bottom", legend.title=element_text(size=15), 
+          legend.text=element_text(size=20),plot.title = element_text( size=32, hjust=0.5)) +
+    labs(title = "Shots - Team A",colour="Shot Type") +
+    guides(size = FALSE, shape = FALSE) +
+    guides(colour = guide_legend(override.aes = list(size = 10))) 
+
+TeamAShotplt
+    
+    
+# Shots - Team B
+
+TeamBShot <- match %>% filter (team == Team2, outcome %in% c("Goal","Point","Miss","Fk Goal","Fk Point","Fk Miss"))
+
+TeamBShotplot <-pitch + geom_point(data = TeamBShot, aes(x= areax, y=areay, colour = as.factor(outcome), shape = outcome), size = 10) + 
+    geom_text(data= TeamBShot, aes(x= areax, y=areay, label = player),colour = "white", size = 6) +
+    scale_colour_manual(values = shotcol) +
+    scale_shape_manual(values = shotshape) +
+    theme(legend.position="bottom", legend.title=element_text(size=15), 
+          legend.text=element_text(size=20),plot.title = element_text( size=32, hjust=0.5)) +
+    labs(title = "Shots - Team B",colour="Shot Type") +
+    guides(size = FALSE, shape = FALSE) +
+    guides(colour = guide_legend(override.aes = list(size = 10))) 
+
+
+TeamBShotplot
+    
+```
