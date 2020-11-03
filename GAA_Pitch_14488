@@ -74,11 +74,14 @@ create_GAA_Pitch <- function(grass_colour, line_colour, background_colour, goala
   
  #tramlines - hor
   srwing <- 13
+  rig <- 22
   rhalfsp <- 31
+  mid <- 44
   ctre <- 57
+  let <- 66
   lhalfsp <- 75
   
- #tramlines - vert
+#tramlines - vert
 
 one <- 33
 two <- 55
@@ -137,7 +140,8 @@ five <- 111
       geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
       geom_path(data=def_circle, aes(x,y), colour = line_colour,size = 0.5) +
       geom_path(data=att_circle, aes(x,y), colour = line_colour,size = 0.5) +
-      xlim(c(xmin,xmax)) + ylim(c(ymin,ymax))
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0))
     
   }
   
@@ -175,25 +179,26 @@ five <- 111
       geom_segment(aes(x = xmin, y = rhalfsp, xend = xmax, yend = rhalfsp),colour = tram_colour,linetype="dotted",size = 0.5) +
       geom_segment(aes(x = xmin, y = ctre, xend = xmax, yend = ctre),colour = tram_colour,linetype="dotted",size = 0.5) +
       geom_segment(aes(x = xmin, y = lhalfsp, xend = xmax, yend = lhalfsp),colour = tram_colour,linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmin, y = rig, xend = xmax, yend = rig),colour = "white",linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmin, y = mid, xend = xmax, yend = mid),colour = "white",linetype="dotted",size = 0.5) +
+geom_segment(aes(x = xmin, y = let, xend = xmax, yend = let),colour = "white",linetype="dotted",size = 0.5) +
       geom_segment(aes(x = hwxst, y =  ymin, xend = hwxst, yend = ymax),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = one, y = ymin, xend = one, yend = ymax),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = two, y = ymin, xend = two, yend = ymax),colour = tram_colour,linetype="dotted",size = 0.5) +
       geom_segment(aes(x = hw, y = ymin, xend = hw, yend = ymax),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = four, y = ymin, xend = four, yend = ymax),colour = tram_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = five, y = ymin, xend = five, yend = ymax),colour = tram_colour,linetype="dotted",size = 0.5) +
       geom_path(data=def_circle, aes(x,y), colour = line_colour,size = 0.5) +
       geom_path(data=att_circle, aes(x,y), colour = line_colour,size = 0.5)  +
-      xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
-      annotate(geom="text", x= 21.5, y=1.25, label="20",color = label_colour,size = 4) +
-      annotate(geom="text", x= 46.5, y=1.25, label="45",color = label_colour,size = 4) +
-      annotate(geom="text", x= 66.5, y=1.25, label="65",color = label_colour,size = 4) +
-      annotate(geom="text", x= 80.5, y=1.25, label="65",color = label_colour,size = 4) +
-      annotate(geom="text", x=100.5, y=1.25, label="45", color=label_colour,size = 4) +
-      annotate(geom="text", x=125.5, y=1.25, label="20",color = label_colour,size = 4) +
-      annotate(geom="text", x= 112, y=2, label="www.witnesstheanalysis.com",color = "white",size = 6, alpha = 0.4) +
-      annotate(geom="text", x= 32, y=87, label="www.witnesstheanalysis.com",color = "white",size = 6, alpha = 0.4)+
-      annotate("segment", x = 68, xend = 76, y = 2, yend = 2, colour = "pink", size=3, alpha=0.6, arrow=arrow())
-  }
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0))
 
+  }
   
   return(p)}
 
 
 p <- create_GAA_Pitch("gray72", "white", "lightblue", "blue","red","white","blue", BasicFeatures=FALSE)
+
+p
 
