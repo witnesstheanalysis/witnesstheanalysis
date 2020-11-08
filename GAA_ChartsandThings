@@ -756,5 +756,54 @@ TeamBShotplot <-pitch + geom_point(data = TeamBShot, aes(x= areax, y=areay, colo
 
 
 TeamBShotplot
+
+
+## Moving the Legend ##
+
+## Top Right ## 
+
+## Filter the data
+
+TeamAKo <- match %>% filter (team == Team1, outcome %in% c("Ko Won","Ko Lost"))
+
+## Create the pitch and plot the data
+
+TeamAKoplt <- pitch + geom_point(data = TeamAKo, aes(x= areax, y=areay, colour = as.factor(outcome), shape = outcome), size = 10, stroke = 2) + 
+  geom_text(data= TeamAKo, aes(x= areax, y=areay, label = player),colour = "black", size = 6) +
+  scale_colour_manual(values = shotcol) +
+  scale_shape_manual(values = shotshape) +
+  theme(legend.position = c(.95, .95),
+    legend.justification = c("right", "top"),
+    legend.box.just = "right",
+    legend.margin = margin(6, 6, 6, 6)) +
+  labs(title = "Kickouts - Team A",colour="Outcome") +
+  guides(size = FALSE, shape = FALSE) +
+  guides(colour = guide_legend(override.aes = list(size = 10))) 
+
+## Show the pitch
+
+TeamAKoplt
+
+## Top Left ## 
+
+# Shots - Team B
+
+TeamBShot <- match %>% filter (team == Team2, outcome %in% c("Goal","Point","Miss","Fk Goal","Fk Point","Fk Miss"))
+
+TeamBShotplot <-pitch + geom_point(data = TeamBShot, aes(x= areax, y=areay, colour = as.factor(outcome), shape = outcome), size = 10) + 
+  geom_text(data= TeamBShot, aes(x= areax, y=areay, label = player),colour = "white", size = 6) +
+  scale_colour_manual(values = shotcol) +
+  scale_shape_manual(values = shotshape) +
+  theme(legend.position = c(.05, .95),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(6, 6, 6, 6))+
+  labs(title = "Shots - Team B",colour="Shot Type") +
+  guides(size = FALSE, shape = FALSE) +
+  guides(colour = guide_legend(override.aes = list(size = 10))) 
+
+
+TeamBShotplot
+
     
 ```
