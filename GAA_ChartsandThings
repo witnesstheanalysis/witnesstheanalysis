@@ -75,9 +75,14 @@ attach (match)
 
 match$outcome<- as.character(match$outcome)
 
+# You can use the following code to change Ko to Po for Hurling or to anything else you want 
+# You will need to add/change them in the colour and shape scales 
+
+#match <- match %>% mutate(outcome =ifelse(outcome == "Ko Rec","Po Won", match$outcome))
+#match <- match %>% mutate(outcome =ifelse(outcome == "Ko Lost","Po Lost", match$outcome))
+
 match <- match %>% mutate(outcome =
 ifelse(outcome == "Ko Rec","Ko Won", match$outcome))
-
 
 # Create a new colomn for team names
 # Keep A|B for quicker filtering 
