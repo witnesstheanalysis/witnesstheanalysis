@@ -11,6 +11,10 @@ https://witnesstheanalysis.wordpress.com/ - there are other ideas for what to do
 
 You can create the charts etc individually once you have run parts 1-4 or alternatively you can create an Rmarkdown document and knit it as either a html or a pdf  
 
+For an Rmarkdown document copy and paste in as is. Include these parts ```{r}|``` (these are chunks) 
+
+if you dont want to make an Rmarkdown document remove the ```{r}|``` parts.
+
 ## Some Links ##
 
 https://rmarkdown.rstudio.com/lesson-1.html
