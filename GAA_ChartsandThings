@@ -775,7 +775,9 @@ TeamAKoplt <- pitch + geom_point(data = TeamAKo, aes(x= areax, y=areay, colour =
   theme(legend.position = c(.95, .95),
     legend.justification = c("right", "top"),
     legend.box.just = "right",
-    legend.margin = margin(6, 6, 6, 6)) +
+    legend.margin = margin(6, 6, 6, 6), 
+    legend.title=element_text(size=15), 
+    legend.text=element_text(size=20),plot.title = element_text( size=32, hjust=0.5)) +
   labs(title = "Kickouts - Team A",colour="Outcome") +
   guides(size = FALSE, shape = FALSE) +
   guides(colour = guide_legend(override.aes = list(size = 10))) 
@@ -797,13 +799,14 @@ TeamBShotplot <-pitch + geom_point(data = TeamBShot, aes(x= areax, y=areay, colo
   theme(legend.position = c(.05, .95),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(6, 6, 6, 6))+
+        legend.margin = margin(6, 6, 6, 6), 
+        legend.title=element_text(size=15), 
+        legend.text=element_text(size=20),plot.title = element_text( size=32, hjust=0.5))+
   labs(title = "Shots - Team B",colour="Shot Type") +
   guides(size = FALSE, shape = FALSE) +
   guides(colour = guide_legend(override.aes = list(size = 10))) 
 
 
 TeamBShotplot
-
     
 ```
