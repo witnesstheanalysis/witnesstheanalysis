@@ -1,0 +1,211 @@
+library(shiny)
+library(ggplot2)
+library(ggrepel)
+
+ui <- pageWithSidebar(
+  ## Add a header ##
+  headerPanel("witnesstheanalysis.com"),
+  
+  ##Add to the side panel ##
+  sidebarPanel(
+    radioButtons("shot", "Shot", c("Left", "Right", "Fist/Punch", "Fk Right","Fk Left")),
+    radioButtons("team", "Team:", c("A", "B")),
+    radioButtons("outcome", "Outcome:", c("Goal", "Point", "Miss","Fk Goal", "Fk Point", "Fk Miss")),
+    selectInput("player", "Player:",
+                list("Player" = list("1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                     "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","p"))),
+    selectInput("time", "Time:",
+                list("time" = list("0","1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                   "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42",
+                                   "43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58",
+                                   "59","60","61","62","63","64","65","66","67","68","69","70",
+                                   "71","72","73","74","75","76","77","78","79","80"))),
+    actionButton("rem_point", "Remove"),
+    downloadButton("dlPlot", "Download Plot"),
+    downloadButton("dlTab", "Download Table"),
+    width = 2),
+  ## this part sets where the different parts are placed ##
+  mainPanel(
+    fluidRow( 
+      column(width = 5,
+             plotOutput("plot1", click = "plot_click")),
+      column(2,offset = 5,
+             tableOutput("table")))
+    
+  )
+)
+
+server = function(input, output){
+  
+  ## 1. set up reactive dataframe ##
+  
+  values <- reactiveValues()
+  values$DT <- data.frame(
+    shot = factor(),
+    team = factor(),
+    outcome = factor(),
+    player = factor(),
+    time = factor (),
+    x = numeric (),
+    y = numeric())
+  
+  ## 1.5 Create the themes for the pitch ##
+  
+  theme_blankPitch = function(size=12) { 
+    theme(
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      axis.ticks.length=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill="lightgreen",colour="lightgreen"),
+      strip.text.x=element_text(size=size*1))}
+  
+  circleFundef <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=2)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] + diameter / 2 * cos(tt), 
+               y = center[2] + diameter / 2 * sin(tt))
+  }
+  
+  circleFunatt <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=2)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] - diameter / 2 * cos(tt), 
+               y = center[2] - diameter / 2 * sin(tt))
+  }
+  #### create semi circle ####
+  def_circle <-  circleFundef(c(20,49), 26, start=1.5, end=2.5)
+  att_circle <-  circleFunatt(c(124,49), 26, start=1.5, end=2.5)
+  
+  ## Set the shapes for the for the actions ## 
+  
+  ocome <- c("Goal"= 15,
+             "Point"= 16,
+             "Miss"= 4,
+             "Fk Goal" = 18,
+             "Fk Point" = 17,
+             "Fk Miss" = 3)
+  
+  ## and the colours for the teams ##
+  
+  teamcol <- c("A" = "red",
+               "B" = "blue")
+  
+  ## 2. Create a pitch ##
+  
+  output$plot1 = renderPlot({
+    ggplot(values$DT, aes(x = x, y = y)) +
+      geom_point(aes(color = team,
+                     shape = outcome), size = 2, stroke = 2) +
+      geom_text_repel( aes(label = player), size = 4,colour = "black") +
+      lims(x = c(0, 144), y = c(0, 98)) +
+      theme(legend.position="bottom") +
+      theme_blankPitch() +
+      geom_segment(aes(x = 0, y = 0, xend = 144, yend = 0),colour = "white",linetype="solid") +
+      geom_segment(aes(x = 0, y = 98, xend = 144, yend = 98),colour = "white",linetype="solid") +
+      geom_segment(aes(x = 0, y = 0, xend = 0, yend = 98),colour = "white",linetype="solid") +
+      geom_segment(aes(x = 144, y =0 , xend = 144, yend = 98),colour = "white",linetype="solid") +
+      geom_segment(aes(x = 13, y = 0, xend = 13, yend = 98),colour = "white",linetype="solid",size = .5) +   
+      geom_segment(aes(x = 20, y = 0, xend = 20, yend = 98),colour = "white",linetype="solid",size = .5) + 
+      geom_segment(aes(x = 45, y = 0, xend = 45, yend = 98),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 65, y = 0, xend = 65, yend = 98),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 79, y = 0, xend = 79, yend = 98),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 99, y = 0, xend = 99, yend = 98),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 124, y = 0, xend = 124, yend = 98),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 131, y = 0, xend = 131, yend = 98),colour = "white",linetype="solid",size = .5) + 
+      geom_segment(aes(x = 0, y = 39.5, xend = 13, yend = 39.5),colour = "white",linetype="solid",size = .5) + 
+      geom_segment(aes(x = 0, y = 58.5, xend = 13, yend = 58.5),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 131, y = 39.5, xend = 144, yend = 39.5),colour = "white",linetype="solid",size = .5) + 
+      geom_segment(aes(x = 131, y = 58.5, xend = 144, yend = 58.5),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 72.5, y = 45.75, xend = 72.5, yend = 52.25),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 0, y = 42, xend = 4.5, yend = 42),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 0, y = 56, xend = 4.5, yend = 56),colour = "white",linetype="solid",size = .5) + 
+      geom_segment(aes(x = 4.5, y = 42, xend = 4.5, yend = 56),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 139.5, y = 42, xend = 144, yend = 42),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 139.5, y = 56, xend = 144, yend = 56),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 139.5, y = 42, xend = 139.5, yend = 56),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 139.5, y = 42, xend = 139.5, yend = 56),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 11, y = 48.5, xend = 11, yend = 49.5),colour = "white",linetype="solid",size = .5) +
+      geom_segment(aes(x = 133, y = 48.5, xend = 133, yend = 49.5),colour = "white", size = .5) +
+      geom_segment(aes(x = 0, y = 45.75, xend = 0, yend = 52.5),colour = "blue", size = 1) +
+      geom_segment(aes(x =144, y = 45.75, xend = 144, yend = 52.5),colour = "red", size = 1) +
+      annotate(geom="text", x= 14.30, y=1.23, label="13",color = "white", size = 4) +
+      annotate(geom="text", x= 21.30, y=1.23, label="20",color = "white", size = 4) +
+      annotate(geom="text", x= 46.30, y=1.23, label="45",color = "blue", size = 4) +
+      annotate(geom="text", x= 66.30, y=1.23, label="65",color = "white", size = 4) +
+      annotate(geom="text", x=80.30, y=1.23, label="65", color="white", size = 4) +
+      annotate(geom="text", x=100.30, y=1.23, label="45",color = "red", size = 4) +
+      annotate(geom="text", x=125.30, y=1.23, label="20",color = "white", size = 4) +
+      annotate(geom="text", x=132.30, y=1.23, label="13",color = "white", size = 4) +
+      geom_path(data=def_circle, aes(x,y), colour = "white",size = 0.5) +
+      geom_path(data=att_circle, aes(x,y), colour = "white",size = 0.5) + 
+      annotate(geom="text", x= 72, y=4, label="www.witnesstheanalysis.com",color = "white",size = 5, alpha = 0.9) +
+      annotate(geom="text", x= 72, y=96, label="www.witnesstheanalysis.com",color = "white",size = 5, alpha = 0.9) + 
+      scale_shape_manual(values = ocome) +
+      scale_colour_manual(values = teamcol)
+  },height = 600, width = 750)
+  
+  ## 3. add new row to reactive dataframe upon clicking plot ##
+  
+  observeEvent(input$plot_click, {
+    # each input is a factor so levels are consistent for plotting characteristics
+    add_row <- data.frame(
+      shot = factor(input$shot, levels = c("Left", "Right", "Fist/Punch","Fk Right","Fk Left")),
+      team = factor(input$team, levels = c("A", "B")),
+      outcome = factor (input$outcome, levels = c("Goal", "Point", "Miss","Fk Goal", "Fk Point", "Fk Miss")),
+      player = factor (input$player, levels = c("0", "1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                                "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","p")),
+      time = factor (input$time, levels = c("1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                            "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42",
+                                            "43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58",
+                                            "59","60","61","62","63","64","65","66","67","68","69","70",
+                                            "71","72","73","74","75","76","77","78","79","80")),
+      x = input$plot_click$x,
+      y = input$plot_click$y)
+    
+    # add row to the data.frame
+    values$DT <- rbind(values$DT, add_row)
+  })
+  
+  ## 4. remove row on actionButton click ##
+  observeEvent(input$rem_point, {
+    rem_row <- values$DT[-nrow(values$DT), ]
+    values$DT <- rem_row
+  })
+  
+  ## 5. render a table of the growing dataframe ##
+  output$table <- renderTable({
+    values$DT
+  })
+  
+  # Downloadable csv of selected dataset ----
+  
+  output$dlPlot <- downloadHandler(
+    filename="Plot_Download.jpg",
+    content=function(file){
+      ggsave(file, device = "jpeg")
+    }
+  )
+  
+  output$dlTab <- downloadHandler(
+    filename="Table_Download.csv",
+    content=function(file){
+      write.csv(x=values$DT, file=file)
+    }
+  )
+  
+}
+
+shinyApp(ui, server)
+
+
+
