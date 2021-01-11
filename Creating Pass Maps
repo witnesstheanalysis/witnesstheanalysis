@@ -1,0 +1,471 @@
+
+# Install Packages if Required (only needs to be done once) # 
+## Remove the '#' to run ## 
+
+#install.packages("googlesheets4")
+#install.packages("ggplot2")
+#install.packages("ggrepel")
+#install.packages("tidyverse")
+#install.packages("kableExtra")
+
+# Load the Packages # 
+
+suppressPackageStartupMessages(library(googlesheets4))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(ggrepel))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(kableExtra))
+
+## Example data can be found here ## 
+
+### https://docs.google.com/spreadsheets/d/1DYFbzuuBc_9RZjEVyAqLcyIL8HeGZirywceFB52l_Xo/edit#gid=0 ### 
+
+# Load Exaple Data # 
+
+#match <- read.csv(file="pathtofile", header=TRUE, sep=",")
+#attach (match)
+
+
+match <- read.csv(file="c:/Users/donagh/OneDrive/Spreadsheet fun/PA Analytics/PA Template/soccerexmp.csv", header=TRUE, sep=";")
+attach (match)
+
+
+# Using attach #
+## https://stackoverflow.com/questions/10067680/why-is-it-not-advisable-to-use-attach-in-r-and-what-should-i-use-instead ##
+
+# Data Set Up #
+
+## Add Team Names ##
+
+match <- match %>% mutate(team_name =ifelse(team == "A", "Team Name A", ifelse(team == "B" , "Team Name B", "Team Missing ")))
+                          
+                     
+# Direction of Play #
+
+## make teams shoot the same way ##
+### Team shooting Left to Right is the first team - so if team be are shooting left to right first change the A & B around ###
+                
+match <- match %>%mutate(dX=ifelse(team == "A" & half == 1,X,ifelse(team == "B" & half == 1,105-X
+,ifelse(team == "A" & half == 2,105-X,ifelse(team == "B" & half == 2,X,X)))))
+                          
+match <-match %>%group_by(team)%>%mutate(dY=ifelse(team == "A" & half == 1,Y,ifelse(team == "B" & half == 1,68-Y
+,ifelse(team == "A" & half == 2,68-Y,ifelse(team == "B" & half == 2,Y,Y)))))
+
+
+# Give the Action an Outcome #
+                          
+## Create the dataframe ##
+
+### This takes row 2 and puts it beside row 1 etc - for this to work the data collected has to have a start and end (2 points) ###
+
+passmap <- match
+
+oddps <- passmap[seq(1, nrow(passmap), 2),]
+colnames(oddps) <- c("action","team","player","time","X","Y", "team_name", "half","dX","dY")
+evenps <- passmap[seq(2, nrow(passmap), 2),]
+colnames(evenps) <- c("actionoc","teamoc","playeroc","timeoc","Xoc","Yoc", "team_nameoc", "halfoc","dXoc","dYoc")
+passmap <- bind_cols(oddps, evenps) 
+
+
+## Passing Distance ## 
+
+### May need to be doubled checked ### 
+
+passmap <-passmap %>% mutate(dist =(sqrt((dXoc - dX)^2+ (dYoc - dY)^2)))
+
+## Add numbers to the rows ##
+
+passmap$number <- row.names(passmap)
+
+## Round numbers to 2 digits ##
+
+passmap <- passmap %>% mutate_if(is.numeric, round, digits = 2)    
+
+
+
+## Change order of columns and delete duplicate columns ## 
+
+match <- match %>% select (half, team,team_name,player, action,  X, Y, dX, dY,)
+
+passmap <- passmap %>% select (number,half, team, team_name, player, action, time, X,Y,dX,dY, playeroc, actionoc,  timeoc, Xoc, Yoc, dXoc, dYoc, dist)
+
+## View the final tables ## 
+
+
+view (match)
+
+view(passmap)
+
+
+
+# Creating charts and plots #
+
+# Pitch #
+
+create_Soccer_Pitch <- function(grass_colour, line_colour, background_colour, goala_colour,goalb_colour,label_colour, BasicFeatures){
+  
+  theme_blankPitch = function(size=12) { 
+    theme(
+      #axis.line=element_blank(), 
+      axis.text.x=element_blank(), 
+      axis.text.y=element_blank(), 
+      #axis.ticks.y=element_text(size=size),
+      #axis.ticks=element_blank(),
+      axis.ticks.length=unit(0, "lines"), 
+      #axis.ticks.margin=unit(0, "lines"), 
+      axis.title.x=element_blank(), 
+      axis.title.y=element_blank(), 
+      legend.key.size=unit(1.2, "lines"), 
+      legend.text=element_text(size=size), 
+      legend.title=element_text(size=size, face="bold",hjust=0),
+      # panel.border=element_blank(), 
+      panel.grid.major=element_blank(), 
+      panel.grid.minor=element_blank(), 
+      panel.spacing=element_blank(), 
+      plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+      plot.title=element_text(size=size*1.2), 
+      panel.background=element_rect(fill= background_colour,colour= background_colour),
+      strip.text.x=element_text(size=size*1))}
+  
+  ymin <- 0 # minimum width
+  ymax <- 68 # maximum width
+  xmin <- 0 # minimum length
+  xmax <- 105 # maximum length
+  
+  # pitch lines  
+  defbbxst <- 16.5
+  offbbxst <- 88.5
+  bbyst <- 13.85
+  bbyed <- 54.15
+  defsbxst <- 5.5
+  offsbxst <- 99.5
+  sbyst <- 24.85
+  sbyed <- 43.15
+  
+  # small box
+  sbrd <- 24.85
+  sbld <- 43.15
+  sbDefxed <- 5.5
+  sbOffxed <- 99.5
+  
+  #Big box
+  bbrd <- 13.85
+  bbld <- 54.15
+  bbOffxed <- 88.5
+  
+  
+  #Goals
+  glxst <- 0
+  glyst <- 30.35
+  glxed <- 105
+  glyed <- 37.65
+  
+  #halfway line
+  hwxst <- 52.5
+  hwyst <- ymin
+  hwyed <- ymax
+  #centre spot
+  hwspyst <- 34
+  hwspxst <- 52.3
+  hwspxed <- 52.8
+  
+  #pen spot
+  
+  pdxst <- 11
+  pdyst <- 33.8
+  pdyed <- 34.2
+  poxst <- 94
+  
+  #tramlines
+  srwing <- 13.6
+  rhalfsp <- 27.2
+  ctre <- 40.8
+  lhalfsp <- 54.4
+  
+  
+  circleFundef <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=1)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] + diameter / 2  * cos(tt), 
+               y = center[2] + diameter / 2 * sin(tt))
+  }
+  
+  
+  circleFunatt <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=1)
+  {
+    tt <- seq(start*pi, end*pi, length.out=npoints)
+    data.frame(x = center[1] - diameter / 2 * cos(tt), 
+               y = center[2] - diameter / 2 * sin(tt))
+  }
+  
+  
+  circleFuncent <- function(center=c(0,0), diameter=2, npoints=1000, start=0, end=2)
+  {
+    r = diameter / 2
+    tt <- seq(0,2*pi,length.out = npoints)
+    x <- center[1] + r * cos(tt)
+    y <- center[2] + r * sin(tt)
+    return(data.frame(x = x, y = y))
+  }
+  
+  # create penalty semi circle with help from https://github.com/FCrSTATS/Visualisations/blob/master/3.CreateAPitch.md
+  def_circle <-  circleFundef(c(13,34), 14, start=1.5, end=2.5)
+  def_circle <- def_circle[which(def_circle$x >= (16.5)),]
+  att_circle <-  circleFunatt(c(92,34), 14, start=1.5, end=2.5)
+  att_circle <- att_circle[which(att_circle$x <= (88.5)),]
+  cent_circle <-  circleFuncent(c(52.5,34), 18, start=1.5, end=2.5)
+  
+  if(BasicFeatures == TRUE){
+    ## initiate the plot, set some boundries to the plot
+    pitch <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      # add lines goals etc
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
+      #horbox
+      geom_segment(aes(x = defsbxst, y = sbyst, xend = defsbxst, yend = sbyed),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = offsbxst, y = sbyst, xend = offsbxst, yend = sbyed),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = defbbxst, y = bbyst, xend = defbbxst, yend = bbyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = offbbxst, y = bbyst, xend = offbbxst, yend = bbyed),colour = line_colour,linetype="solid",size = 0.5) + 
+      #vertsbox
+      geom_segment(aes(x = xmin, y = sbrd, xend = sbDefxed, yend = sbrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = sbld, xend = sbDefxed, yend = sbld),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = sbrd, xend = sbOffxed, yend = sbrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = sbld, xend = sbOffxed, yend = sbld),colour = line_colour,linetype="solid",size = 0.5) + 
+      #vertbbox
+      geom_segment(aes(x = xmin, y = bbrd, xend = defbbxst, yend = bbrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = bbld, xend = defbbxst, yend = bbld),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = bbrd, xend = offbbxst, yend = bbrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = bbld, xend = offbbxst, yend = bbld),colour = line_colour,linetype="solid",size = 0.5) + 
+      #halfway
+      geom_segment(aes(x = hwxst, y = hwyst, xend = hwxst, yend = hwyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = hwspxst, y = hwspyst, xend = hwspxed, yend = hwspyst),colour = line_colour,linetype="solid",size = 0.5) +
+      #pen spots
+      geom_segment(aes(x = pdxst, y = pdyst, xend = pdxst, yend = pdyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = poxst, y = pdyst, xend = poxst, yend = pdyed),colour = line_colour,linetype="solid",size = 0.5) +
+      #pen semi circles
+      geom_path(data=def_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      geom_path(data=att_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      #goals
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      #circle
+      geom_path(data=cent_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      annotate(geom="text", x= 52.5, y=2, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) +
+      annotate(geom="text", x= 52.5, y=66, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) 
+    
+  }
+  
+  else{ 
+    ## initiate the plot, set some boundries to the plot
+    pitch <- ggplot() + xlim(c(xmin,xmax)) + ylim(c(ymin,ymax)) +
+      # add the theme 
+      theme_blankPitch() +
+      # add lines goals etc
+      geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = grass_colour, colour = line_colour) + 
+      #horbox
+      geom_segment(aes(x = defsbxst, y = sbyst, xend = defsbxst, yend = sbyed),colour = line_colour,linetype="solid",size = 0.5) +   
+      geom_segment(aes(x = offsbxst, y = sbyst, xend = offsbxst, yend = sbyed),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = defbbxst, y = bbyst, xend = defbbxst, yend = bbyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = offbbxst, y = bbyst, xend = offbbxst, yend = bbyed),colour = line_colour,linetype="solid",size = 0.5) + 
+      #vertsbox
+      geom_segment(aes(x = xmin, y = sbrd, xend = sbDefxed, yend = sbrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = sbld, xend = sbDefxed, yend = sbld),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = sbrd, xend = sbOffxed, yend = sbrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = sbld, xend = sbOffxed, yend = sbld),colour = line_colour,linetype="solid",size = 0.5) + 
+      #vertbbox
+      geom_segment(aes(x = xmin, y = bbrd, xend = defbbxst, yend = bbrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmin, y = bbld, xend = defbbxst, yend = bbld),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = bbrd, xend = offbbxst, yend = bbrd),colour = line_colour,linetype="solid",size = 0.5) + 
+      geom_segment(aes(x = xmax, y = bbld, xend = offbbxst, yend = bbld),colour = line_colour,linetype="solid",size = 0.5) + 
+      #halfway
+      geom_segment(aes(x = hwxst, y = hwyst, xend = hwxst, yend = hwyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = hwspxst, y = hwspyst, xend = hwspxed, yend = hwspyst),colour = line_colour,linetype="solid",size = 0.5) +
+      #pen spots
+      geom_segment(aes(x = pdxst, y = pdyst, xend = pdxst, yend = pdyed),colour = line_colour,linetype="solid",size = 0.5) +
+      geom_segment(aes(x = poxst, y = pdyst, xend = poxst, yend = pdyed),colour = line_colour,linetype="solid",size = 0.5) +
+      #pen semi circles
+      geom_path(data=def_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      geom_path(data=att_circle, aes(x,y), colour = line_colour,size = 0.5) +
+      #goals
+      geom_segment(aes(x = glxst, y =  glyst, xend = glxst, yend = glyed),colour = goala_colour, size = 1) +
+      geom_segment(aes(x =glxed, y =  glyst, xend =glxed, yend = glyed),colour = goalb_colour, size = 1) +
+      #tramlines
+      geom_segment(aes(x = xmin, y = srwing, xend = xmax, yend = srwing),colour = line_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = xmin, y = rhalfsp, xend = xmax, yend = rhalfsp),colour = line_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = xmin, y = ctre, xend = xmax, yend = ctre),colour = line_colour,linetype="dotted",size = 0.5) +
+      geom_segment(aes(x = xmin, y = lhalfsp, xend = xmax, yend = lhalfsp),colour = line_colour,linetype="dotted",size = 0.5) +
+      #circle
+      geom_path(data=cent_circle, aes(x,y), colour = line_colour,size = 0.5) + 
+      annotate(geom="text", x= 52.5, y=2, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4) +
+      annotate(geom="text", x= 52.5, y=66, label="www.witnesstheanalysis.com",color = label_colour,size = 4, alpha = 0.4)
+  }
+  
+  return(pitch)}
+
+
+pitch <- create_Soccer_Pitch("#A2CD5A", "white", "lightblue", "blue","red","white", BasicFeatures= TRUE)
+
+## Set up manual_scale for shapes and colours ## 
+
+actshp <- c(
+  "Pass"= 16,
+  "Shot" = 17,
+  "Rec" = 19,
+  "Goal"= 15,
+  "Miss"= 4,
+  "Saved" = 18,
+  "Pass Loss"= 4)
+
+## and the colours  ##
+
+actcol <- c(
+  "Pass"= "lightblue",
+  "Rec"="white",
+  "Pass Loss"="red",
+  "Shot"="#00FFFF",
+  "Goal"= "gold",
+  "Saved"="#FFFF00",
+  "Miss"="#00FFFF")
+
+linecol <- c (
+    "Rec" = "white",
+    "Pass Loss" = "red",
+    "Goal"= "gold",
+    "Saved"="#FFFF00",
+    "Miss"="#00FFFF")
+
+### more shape options here - https://davidrroberts.wordpress.com/2015/06/02/r-pch-symbol-library-plot/ ###
+
+### more colour options here ### 
+
+## Show all Passes and Shots Locations ##
+
+### If you don't want teams shooting the same direction remove the d from the dx, dy etc  ### 
+    
+### Filter the Data ### 
+
+actionA <- match %>% filter (team == "A", action %in% c ("Pass", "Shot")) 
+  
+teamAact <- pitch  + 
+geom_point(data = actionA, aes(x= dX, y= dY, colour = action, shape = action), size = 6) +
+geom_text(data = actionA , aes(x= dX, y= dY, label = player), size = 4) +
+geom_text_repel(data = actionA , aes(x= dX, y= dY, label = action), size = 4) +
+labs(title = "Team A - Actions", colour = "Team Action", shape = "Team Action") +
+theme(plot.title = element_text(hjust=0.5), legend.position="bottom") +
+  scale_shape_manual(values = actshp) +
+  scale_colour_manual(values = actcol)
+
+### Show All with Lines  ### 
+
+teamAact
+
+### Add Labels using text repel  ### 
+
+linesA <- passmap %>% filter (team == "A")
+
+actionA <- match %>% filter (team == "A", action %in% c ("Pass", "Shot")) 
+
+outcomeA <-  match %>% filter (team == "A", action %in% c ("Rec", "Pass Loss", "Shot", "Goal", "Saved", "Miss"))
+
+teamAact <- pitch  + geom_segment(data = linesA, aes(x = dX, y = dY, xend = dXoc, yend = dYoc), colour = "black",size = 1.5,arrow = arrow(length = unit(0.6, "cm"))) +
+  geom_point(data = actionA, aes(x= dX, y= dY, colour = action, shape = action), size = 6) +
+  geom_text(data = actionA , aes(x= dX, y= dY, label = player), size = 4) +
+  geom_point(data = outcomeA , aes(x= dX, y= dY, colour = action, shape = action), size = 6) +
+  geom_text(data = outcomeA, aes(x= dX, y= dY, label = player), size = 4) + 
+  geom_text_repel(data = outcomeA, aes(x= dX, y= dY, label = player), size = 4) + 
+  labs(title = "Team A - Actions", colour = "Team Action", shape = "Team Action") +
+  theme(plot.title = element_text(hjust=0.5), legend.position="bottom") +
+  scale_shape_manual(values = actshp) +
+  scale_colour_manual(values = actcol)
+
+### Show All with Lines  ### 
+
+teamAact
+
+
+## Lines ## 
+
+pass_line <- pitch  + geom_segment(data = passmap, aes(x = dX, y = dY, xend = dXoc, yend = dYoc, colour = actionoc),size = 1,arrow = arrow(length = unit(0.6, "cm"))) +
+  scale_colour_manual(values = linecol) +
+  labs(title = "Team A - Passing", colour = "Pass Action", shape = "Pass Action") +
+  theme(plot.title = element_text(hjust=0.5), legend.position="bottom") 
+
+### Show Plot ###
+
+pass_line
+
+
+## Show Shots Only ##
+
+shotA <- passmap %>% filter (team == "A", action == "Shot")
+
+shtplt <- pitch  + geom_segment(data = shotA, aes(x = dX, y = dY, xend = dXoc, yend = dYoc, colour = actionoc),size = 1,arrow = arrow(length = unit(0.6, "cm"))) +
+  scale_colour_manual(values = linecol)
+
+### Show Plot ###
+
+shtplt
+
+
+## Creating a Team Count Chart ## 
+
+
+teamA <- match %>% filter (team == "A") %>% 
+  count (action, sort = TRUE) %>% 
+  mutate (action = fct_reorder(action,n)) %>%
+  ggplot(aes(n,action, colour = action, fill = action)) + 
+  geom_col () +
+  labs (x = "",y = "", title = "Count of Actions for Team A") + 
+  theme_classic() + theme (panel.grid.major = element_blank(),
+                           panel.grid.minor = element_blank(),legend.position="bottom",
+                           plot.title = element_text(hjust=0.5))
+
+### Show Chart ### 
+
+teamA
+
+# Creating a Player Stats # 
+
+
+TeamA <- match %>% filter (team == "A") 
+
+## Here you can combine counts to create other counts - example adding passes, rec and shots to create a total actions count 
+
+plystatsA <- TeamA %>%group_by(player)%>%summarize(Pass =sum(action == "Pass"),Rec =sum(action %in% c ( "Rec")),Loss = sum (action %in% c("Pass Loss")),
+                                      Shot = sum (action %in% c("Shot")), Goals =sum(action == "Goal"),
+                                      Miss =sum(action == "Miss"), Saved =sum(action == "Saved"), Total_Actions = (Pass + Rec + Shot))
+
+## Rename a Column ## 
+
+plystatsA  <- rename(plystatsA , "Total Actions" = Total_Actions)
+
+
+## Create a Table ## 
+
+plytabA <- plystatsA   %>%
+  kbl(caption = "Player Stats",align = "c") %>%
+  kable_minimal()
+
+## ShoW Table ## 
+
+plytabA
+
+## More Ideas for Tables here https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html ## 
+
+
+# Saving a Plot # 
+
+### https://www.datanovia.com/en/blog/how-to-save-a-ggplot/ ### 
+
+## As a pdf ##
+
+pdf("teamAact.pdf")
+print(teamAact)
+dev.off()
+
+## As a png file ## 
+
+png("teamAact.png")
+print(teamAact)
+dev.off()
