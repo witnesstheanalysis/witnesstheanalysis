@@ -22,13 +22,8 @@ suppressPackageStartupMessages(library(kableExtra))
 
 # Load Exaple Data # 
 
-#match <- read.csv(file="pathtofile", header=TRUE, sep=",")
-#attach (match)
-
-
-match <- read.csv(file="c:/Users/donagh/OneDrive/Spreadsheet fun/PA Analytics/PA Template/soccerexmp.csv", header=TRUE, sep=";")
+match <- read.csv(file="pathtofile", header=TRUE, sep=",")
 attach (match)
-
 
 # Using attach #
 ## https://stackoverflow.com/questions/10067680/why-is-it-not-advisable-to-use-attach-in-r-and-what-should-i-use-instead ##
