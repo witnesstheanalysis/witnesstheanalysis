@@ -1,7 +1,7 @@
 
+
 # Install Packages if Required (only needs to be done once) # 
 ## Remove the '#' to run ## 
-
 
 #install.packages("ggplot2")
 #install.packages("ggrepel")
@@ -10,7 +10,6 @@
 
 # Load the Packages # 
 
-suppressPackageStartupMessages(library(googlesheets4))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggrepel))
 suppressPackageStartupMessages(library(tidyverse))
@@ -40,11 +39,11 @@ match <- match %>% mutate(team_name =ifelse(team == "A", "Team Name A", ifelse(t
 ## make teams shoot the same way ##
 ### Team shooting Left to Right is the first team - so if team be are shooting left to right first change the A & B around ###
                 
-match <- match %>%mutate(dX=ifelse(team == "A" & half == 1,X,ifelse(team == "B" & half == 1,105-X
-,ifelse(team == "A" & half == 2,105-X,ifelse(team == "B" & half == 2,X,X)))))
+match <- match %>%mutate(dx=ifelse(team == "A" & half == 1,x,ifelse(team == "B" & half == 1,105-x
+,ifelse(team == "A" & half == 2,105-x,ifelse(team == "B" & half == 2,x,x)))))
                           
-match <-match %>%group_by(team)%>%mutate(dY=ifelse(team == "A" & half == 1,Y,ifelse(team == "B" & half == 1,68-Y
-,ifelse(team == "A" & half == 2,68-Y,ifelse(team == "B" & half == 2,Y,Y)))))
+match <-match %>%group_by(team)%>%mutate(dy=ifelse(team == "A" & half == 1,y,ifelse(team == "B" & half == 1,68-y
+,ifelse(team == "A" & half == 2,68-y,ifelse(team == "B" & half == 2,y,y)))))
 
 
 # Give the Action an Outcome #
@@ -56,9 +55,9 @@ match <-match %>%group_by(team)%>%mutate(dY=ifelse(team == "A" & half == 1,Y,ife
 passmap <- match
 
 oddps <- passmap[seq(1, nrow(passmap), 2),]
-colnames(oddps) <- c("action","team","player","time","X","Y", "team_name", "half","dX","dY")
+colnames(oddps) <- c("action","team","player","time","x","y", "team_name", "half","dx","dy")
 evenps <- passmap[seq(2, nrow(passmap), 2),]
-colnames(evenps) <- c("actionoc","teamoc","playeroc","timeoc","Xoc","Yoc", "team_nameoc", "halfoc","dXoc","dYoc")
+colnames(evenps) <- c("actionoc","teamoc","playeroc","timeoc","Xoc","Yoc", "team_nameoc", "halfoc","dxoc","dyoc")
 passmap <- bind_cols(oddps, evenps) 
 
 
@@ -66,7 +65,7 @@ passmap <- bind_cols(oddps, evenps)
 
 ### May need to be doubled checked ### 
 
-passmap <-passmap %>% mutate(dist =(sqrt((dXoc - dX)^2+ (dYoc - dY)^2)))
+passmap <-passmap %>% mutate(dist =(sqrt((dxoc - dx)^2+ (dyoc - dy)^2)))
 
 ## Add numbers to the rows ##
 
@@ -80,9 +79,9 @@ passmap <- passmap %>% mutate_if(is.numeric, round, digits = 2)
 
 ## Change order of columns and delete duplicate columns ## 
 
-match <- match %>% select (half, team,team_name,player, action,  X, Y, dX, dY,)
+match <- match %>% select (half, team,team_name,player, action,  x, y, dx, dy,)
 
-passmap <- passmap %>% select (number,half, team, team_name, player, action, time, X,Y,dX,dY, playeroc, actionoc,  timeoc, Xoc, Yoc, dXoc, dYoc, dist)
+passmap <- passmap %>% select (number,half, team, team_name, player, action, time, x,y,dx,dy, playeroc, actionoc,  timeoc, Xoc, Yoc, dxoc, dyoc, dist)
 
 ## View the final tables ## 
 
@@ -343,9 +342,9 @@ linecol <- c (
 actionA <- match %>% filter (team == "A", action %in% c ("Pass", "Shot")) 
   
 teamAact <- pitch  + 
-geom_point(data = actionA, aes(x= dX, y= dY, colour = action, shape = action), size = 6) +
-geom_text(data = actionA , aes(x= dX, y= dY, label = player), size = 4) +
-geom_text_repel(data = actionA , aes(x= dX, y= dY, label = action), size = 4) +
+geom_point(data = actionA, aes(x= dx, y= dy, colour = action, shape = action), size = 6) +
+geom_text(data = actionA , aes(x= dx, y= dy, label = player), size = 4) +
+geom_text_repel(data = actionA , aes(x= dx, y= dy, label = action), size = 4) +
 labs(title = "Team A - Actions", colour = "Team Action", shape = "Team Action") +
 theme(plot.title = element_text(hjust=0.5), legend.position="bottom") +
   scale_shape_manual(values = actshp) +
@@ -363,12 +362,12 @@ actionA <- match %>% filter (team == "A", action %in% c ("Pass", "Shot"))
 
 outcomeA <-  match %>% filter (team == "A", action %in% c ("Rec", "Pass Loss", "Shot", "Goal", "Saved", "Miss"))
 
-teamAact <- pitch  + geom_segment(data = linesA, aes(x = dX, y = dY, xend = dXoc, yend = dYoc), colour = "black",size = 1.5,arrow = arrow(length = unit(0.6, "cm"))) +
-  geom_point(data = actionA, aes(x= dX, y= dY, colour = action, shape = action), size = 6) +
-  geom_text(data = actionA , aes(x= dX, y= dY, label = player), size = 4) +
-  geom_point(data = outcomeA , aes(x= dX, y= dY, colour = action, shape = action), size = 6) +
-  geom_text(data = outcomeA, aes(x= dX, y= dY, label = player), size = 4) + 
-  geom_text_repel(data = outcomeA, aes(x= dX, y= dY, label = player), size = 4) + 
+teamAact <- pitch  + geom_segment(data = linesA, aes(x = dx, y = dy, xend = dxoc, yend = dyoc), colour = "black",size = 1.5,arrow = arrow(length = unit(0.6, "cm"))) +
+  geom_point(data = actionA, aes(x= dx, y= dy, colour = action, shape = action), size = 6) +
+  geom_text(data = actionA , aes(x= dx, y= dy, label = player), size = 4) +
+  geom_point(data = outcomeA , aes(x= dx, y= dy, colour = action, shape = action), size = 6) +
+  geom_text(data = outcomeA, aes(x= dx, y= dy, label = player), size = 4) + 
+  geom_text_repel(data = outcomeA, aes(x= dx, y= dy, label = player), size = 4) + 
   labs(title = "Team A - Actions", colour = "Team Action", shape = "Team Action") +
   theme(plot.title = element_text(hjust=0.5), legend.position="bottom") +
   scale_shape_manual(values = actshp) +
@@ -381,7 +380,7 @@ teamAact
 
 ## Lines ## 
 
-pass_line <- pitch  + geom_segment(data = passmap, aes(x = dX, y = dY, xend = dXoc, yend = dYoc, colour = actionoc),size = 1,arrow = arrow(length = unit(0.6, "cm"))) +
+pass_line <- pitch  + geom_segment(data = passmap, aes(x = dx, y = dy, xend = dxoc, yend = dyoc, colour = actionoc),size = 1,arrow = arrow(length = unit(0.6, "cm"))) +
   scale_colour_manual(values = linecol) +
   labs(title = "Team A - Passing", colour = "Pass Action", shape = "Pass Action") +
   theme(plot.title = element_text(hjust=0.5), legend.position="bottom") 
@@ -395,7 +394,7 @@ pass_line
 
 shotA <- passmap %>% filter (team == "A", action == "Shot")
 
-shtplt <- pitch  + geom_segment(data = shotA, aes(x = dX, y = dY, xend = dXoc, yend = dYoc, colour = actionoc),size = 1,arrow = arrow(length = unit(0.6, "cm"))) +
+shtplt <- pitch  + geom_segment(data = shotA, aes(x = dx, y = dy, xend = dxoc, yend = dyoc, colour = actionoc),size = 1,arrow = arrow(length = unit(0.6, "cm"))) +
   scale_colour_manual(values = linecol)
 
 ### Show Plot ###
@@ -464,3 +463,26 @@ dev.off()
 png("teamAact.png")
 print(teamAact)
 dev.off()
+
+
+## To create Run ##
+
+### Works when you group by at some point when creating - as then treats them as two separate dataframes ###
+
+oddps <- match[seq(1, nrow(match), 1),]
+colnames(oddps) <- c("action","team","player","time","x","y", "Team_Name", "half","dx","dy")
+evenps <- match[seq(2, nrow(match), 1),]
+colnames(evenps) <- c("actionoc","teamoc","playeroc","timeoc","Xoc","Yoc", "Team_Nameoc", "halfoc","dxoc","dyoc")
+
+
+#add column to each data frame with row number
+oddps$number <- row.names(oddps)
+evenps$number <- row.names(evenps)
+
+run <- merge(oddps, evenps, by = "number", all = TRUE)
+
+run$number <- as.numeric(run$number)
+
+run  <- run %>% arrange(number)
+
+head (run) 
