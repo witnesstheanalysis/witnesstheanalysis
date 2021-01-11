@@ -302,6 +302,8 @@ pitch <- create_Soccer_Pitch("#A2CD5A", "white", "lightblue", "blue","red","whit
 
 ## Set up manual_scale for shapes and colours ## 
 
+### Shapes ###
+
 actshp <- c(
   "Pass"= 16,
   "Shot" = 17,
@@ -311,7 +313,7 @@ actshp <- c(
   "Saved" = 18,
   "Pass Loss"= 4)
 
-## and the colours  ##
+### Colours ### 
 
 actcol <- c(
   "Pass"= "lightblue",
