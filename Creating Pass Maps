@@ -464,25 +464,3 @@ png("teamAact.png")
 print(teamAact)
 dev.off()
 
-
-## To create Run ##
-
-### Works when you group by at some point when creating - as then treats them as two separate dataframes ###
-
-oddps <- match[seq(1, nrow(match), 1),]
-colnames(oddps) <- c("action","team","player","time","x","y", "Team_Name", "half","dx","dy")
-evenps <- match[seq(2, nrow(match), 1),]
-colnames(evenps) <- c("actionoc","teamoc","playeroc","timeoc","Xoc","Yoc", "Team_Nameoc", "halfoc","dxoc","dyoc")
-
-
-#add column to each data frame with row number
-oddps$number <- row.names(oddps)
-evenps$number <- row.names(evenps)
-
-run <- merge(oddps, evenps, by = "number", all = TRUE)
-
-run$number <- as.numeric(run$number)
-
-run  <- run %>% arrange(number)
-
-head (run) 
