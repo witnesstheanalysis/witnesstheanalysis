@@ -61,12 +61,6 @@ colnames(evenps) <- c("actionoc","teamoc","playeroc","timeoc","Xoc","Yoc", "team
 passmap <- bind_cols(oddps, evenps) 
 
 
-## Passing Distance ## 
-
-### May need to be doubled checked ### 
-
-passmap <-passmap %>% mutate(dist =(sqrt((dxoc - dx)^2+ (dyoc - dy)^2)))
-
 ## Add numbers to the rows ##
 
 passmap$number <- row.names(passmap)
