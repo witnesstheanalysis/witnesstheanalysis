@@ -1,0 +1,426 @@
+library(shiny)
+library(ggplot2)
+library(ggrepel)
+library(flexdashboard)
+library(shinydashboard)
+library(tidyverse)
+
+
+ui <- pageWithSidebar(
+    headerPanel("GAA Tracker (Zoom Page to Resize)"),
+    sidebarPanel(
+        radioButtons("team", "Team:", c("A", "B")),
+        radioButtons("outcome", "Outcome:", c("Ko Rec", "Ko Lost", "Goal", "Point", "Miss","Short", "Fk Goal", "Fk Point","Fk Miss","Fk Short")),
+        selectInput("player", "Player:",
+                    list("Player" = list("1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                         "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"))),
+        selectInput("time", "Time:",
+                    list("time" = list("0","1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                       "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42",
+                                       "43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58",
+                                       "59","60","61","62","63","64","65","66","67","68","69","70",
+                                       "71","72","73","74","75","76","77","78","79","80"))),
+        actionButton("rem_point", "Remove"),
+        downloadButton("dlPlot", "D/l Plot"),
+        downloadButton("dlTab", "D/l Table"),
+        width = 1),
+    mainPanel(
+        fluidRow( column(width = 1,
+                         valueBoxOutput("vb1")),
+                  column(width = 1,
+                         valueBoxOutput("vb2")),
+                  column(width = 1,
+                         valueBoxOutput("vb3")),
+                  column(width = 1,
+                         valueBoxOutput("vb4")),
+                  column(width = 1,
+                         valueBoxOutput("vb5")),
+                  column(width = 1,
+                         valueBoxOutput("vb6")),
+                  column(width = 1,
+                         valueBoxOutput("vb19")),
+                  column(width = 1,
+                         valueBoxOutput("vb7")),
+                  column(width = 1,
+                         valueBoxOutput("vb8")),
+                  column(width = 1,
+                         valueBoxOutput("vb9")),
+                  column(width = 2,
+                         valueBoxOutput("vb21")),
+                  column(width = 1,
+                         valueBoxOutput("vb10")),
+                  column(width = 1,
+                         valueBoxOutput("vb11")),
+                  column(width = 1,
+                         valueBoxOutput("vb12")),
+                  column(width = 1,
+                         valueBoxOutput("vb13")),
+                  column(width = 1,
+                         valueBoxOutput("vb14")),
+                  column(width = 1,
+                         valueBoxOutput("vb15")),
+                  column(width = 1,
+                         valueBoxOutput("vb20")),
+                  column(width = 1,
+                         valueBoxOutput("vb16")),
+                  column(width = 1,
+                         valueBoxOutput("vb17")),
+                  column(width = 1,
+                         valueBoxOutput("vb18")),
+                  column(width = 2,
+                         valueBoxOutput("vb22")),
+                  column(width = 6,
+                         tableOutput("table")),
+                  column(width = 6,
+                         plotOutput("plot1", click = "plot_click")))
+        
+    )
+)
+
+server = function(input, output){
+    
+    ## 1. set up reactive dataframe ##
+    values <- reactiveValues()
+    values$DT <- data.frame(
+        team = factor(),
+        outcome = factor(),
+        player = factor(),
+        time = factor (),
+        x = numeric (),
+        y = numeric())
+    
+    ##1.5 theme
+    
+    theme_blankPitch = function(size=12) { 
+        theme(
+            #axis.line=element_blank(), 
+            axis.text.x=element_blank(), 
+            axis.text.y=element_blank(), 
+            #axis.ticks.y=element_text(size=size),
+            #axis.ticks=element_blank(),
+            axis.ticks.length=unit(0, "lines"), 
+            #axis.ticks.margin=unit(0, "lines"), 
+            axis.title.x=element_blank(), 
+            axis.title.y=element_blank(), 
+            legend.key.size=unit(1.2, "lines"), 
+            legend.text=element_text(size=size), 
+            legend.title=element_text(size=size, face="bold",hjust=0),
+            # panel.border=element_blank(), 
+            panel.grid.major=element_blank(), 
+            panel.grid.minor=element_blank(), 
+            panel.spacing=element_blank(), 
+            plot.margin=unit(c(0, 0, 0, 0), "lines"), 
+            plot.title=element_text(size=size*1.2), 
+            panel.background=element_rect(fill="lightgreen",colour="lightgreen"),
+            strip.text.x=element_text(size=size*1))}
+    
+    circleFundef <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=2)
+    {
+        tt <- seq(start*pi, end*pi, length.out=npoints)
+        data.frame(x = center[1] + diameter / 2 * cos(tt), 
+                   y = center[2] + diameter / 2 * sin(tt))
+    }
+    
+    circleFunatt <- function(center=c(0,0), diameter=1, npoints=100, start=0, end=2)
+    {
+        tt <- seq(start*pi, end*pi, length.out=npoints)
+        data.frame(x = center[1] - diameter / 2 * cos(tt), 
+                   y = center[2] - diameter / 2 * sin(tt))
+    }
+    #### create semi circle ####
+    def_circle <-  circleFundef(c(20,49), 26, start=1.5, end=2.5)
+    att_circle <-  circleFunatt(c(124,49), 26, start=1.5, end=2.5)
+    
+    
+    ocome <- c("Ko Rec"= 2,
+               "Ko Lost"= 6,
+               "Goal"= 15,
+               "Point"= 16,
+               "Miss"= 4,
+               "Short"= 83,
+               "Fk Goal"= 18,
+               "Fk Point"= 1,
+               "Fk Miss"=3,
+               "Fk Short"=70)
+    
+    teamcol <- c("A" = "blue",
+                 "B" = "red")
+    
+    ## 2. Create a plot ##
+    
+    output$plot1 = renderPlot({
+        ggplot(values$DT, aes(x = x, y = y)) +
+            geom_point(aes(color = team,
+                           shape = outcome), size = 2, stroke = 2) +
+            geom_text_repel( aes(label = player), size = 4,colour = "black") +
+            lims(x = c(0, 144), y = c(0, 98)) +
+            theme(legend.position="bottom") +
+            theme_blankPitch() +
+            geom_segment(aes(x = 0, y = 0, xend = 144, yend = 0),colour = "white",linetype="solid") +
+            geom_segment(aes(x = 0, y = 98, xend = 144, yend = 98),colour = "white",linetype="solid") +
+            geom_segment(aes(x = 0, y = 0, xend = 0, yend = 98),colour = "white",linetype="solid") +
+            geom_segment(aes(x = 144, y =0 , xend = 144, yend = 98),colour = "white",linetype="solid") +
+            geom_segment(aes(x = 13, y = 0, xend = 13, yend = 98),colour = "white",linetype="solid",size = .5) +   
+            geom_segment(aes(x = 20, y = 0, xend = 20, yend = 98),colour = "white",linetype="solid",size = .5) + 
+            geom_segment(aes(x = 45, y = 0, xend = 45, yend = 98),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 65, y = 0, xend = 65, yend = 98),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 79, y = 0, xend = 79, yend = 98),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 99, y = 0, xend = 99, yend = 98),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 124, y = 0, xend = 124, yend = 98),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 131, y = 0, xend = 131, yend = 98),colour = "white",linetype="solid",size = .5) + 
+            geom_segment(aes(x = 0, y = 39.5, xend = 13, yend = 39.5),colour = "white",linetype="solid",size = .5) + 
+            geom_segment(aes(x = 0, y = 58.5, xend = 13, yend = 58.5),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 131, y = 39.5, xend = 144, yend = 39.5),colour = "white",linetype="solid",size = .5) + 
+            geom_segment(aes(x = 131, y = 58.5, xend = 144, yend = 58.5),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 72.5, y = 45.75, xend = 72.5, yend = 52.25),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 0, y = 42, xend = 4.5, yend = 42),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 0, y = 56, xend = 4.5, yend = 56),colour = "white",linetype="solid",size = .5) + 
+            geom_segment(aes(x = 4.5, y = 42, xend = 4.5, yend = 56),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 139.5, y = 42, xend = 144, yend = 42),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 139.5, y = 56, xend = 144, yend = 56),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 139.5, y = 42, xend = 139.5, yend = 56),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 139.5, y = 42, xend = 139.5, yend = 56),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 11, y = 48.5, xend = 11, yend = 49.5),colour = "white",linetype="solid",size = .5) +
+            geom_segment(aes(x = 133, y = 48.5, xend = 133, yend = 49.5),colour = "white", size = .5) +
+            geom_segment(aes(x = 0, y = 45.75, xend = 0, yend = 52.5),colour = "blue", size = 1) +
+            geom_segment(aes(x =144, y = 45.75, xend = 144, yend = 52.5),colour = "red", size = 1) +
+            annotate(geom="text", x= 14.30, y=1.23, label="13",color = "white", size = 4) +
+            annotate(geom="text", x= 21.30, y=1.23, label="20",color = "white", size = 4) +
+            annotate(geom="text", x= 46.30, y=1.23, label="45",color = "blue", size = 4) +
+            annotate(geom="text", x= 66.30, y=1.23, label="65",color = "white", size = 4) +
+            annotate(geom="text", x=80.30, y=1.23, label="65", color="white", size = 4) +
+            annotate(geom="text", x=100.30, y=1.23, label="45",color = "red", size = 4) +
+            annotate(geom="text", x=125.30, y=1.23, label="20",color = "white", size = 4) +
+            annotate(geom="text", x=132.30, y=1.23, label="13",color = "white", size = 4) +
+            geom_path(data=def_circle, aes(x,y), colour = "white",size = 0.5) +
+            geom_path(data=att_circle, aes(x,y), colour = "white",size = 0.5) + 
+            annotate(geom="text", x= 72, y=4, label="www.witnesstheanalysis.com",color = "white",size = 5, alpha = 0.9) +
+            annotate(geom="text", x= 72, y=96, label="www.witnesstheanalysis.com",color = "white",size = 5, alpha = 0.9) + 
+            scale_shape_manual(values = ocome) +
+            scale_colour_manual(values = teamcol)
+    },height = 560, width = 760)
+    
+    
+    
+    ## 3. add new row to reactive dataframe upon clicking plot ##
+    observeEvent(input$plot_click, {
+        # each input is a factor so levels are consistent for plotting characteristics
+        add_row <- data.frame(
+            team = factor(input$team, levels = c("A", "B")),
+            outcome = factor (input$outcome, levels = c( "Ko Rec", "Ko Lost", "Goal", "Point", "Miss","Short", "Fk Goal", "Fk Point","Fk Miss","Fk Short")),
+            player = factor (input$player, levels = c("1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                                      "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30")),
+            time = factor (input$time, levels = c("0","1", "2", "3","4","5","6","7","8","9","10","11","12","13",
+                                                  "14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42",
+                                                  "43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58",
+                                                  "59","60","61","62","63","64","65","66","67","68","69","70",
+                                                  "71","72","73","74","75","76","77","78","79","80")),
+            x = input$plot_click$x,
+            y = input$plot_click$y)
+        
+        # add row to the data.frame
+        values$DT <- rbind(values$DT, add_row)
+    })
+    
+    ## 4. remove row on actionButton click ##
+    observeEvent(input$rem_point, {
+        rem_row <- values$DT[-nrow(values$DT), ]
+        values$DT <- rem_row
+    })
+    
+    ## 5. render a table of the growing dataframe ##
+    output$table <- renderTable({
+        values$DT
+    })
+    
+    # Downloadable csv of selected dataset ----
+    # Downloadable csv of selected dataset ----
+    
+    output$dlPlot <- downloadHandler(
+        filename="Plot_Download.jpg",
+        content=function(file){
+            ggsave(file, device = "jpeg")
+        }
+    )
+    
+    output$dlTab <- downloadHandler(
+        filename="Table_Download.csv",
+        content=function(file){
+            write.csv(x=values$DT, file=file)
+        }
+        
+  
+    )
+    
+    output$vb1 <- renderValueBox({
+        plyrA <- values$DT %>% filter (outcome == input$outcome, player == input$player, team == "A") %>%
+            summarize(count = sum (outcome == input$outcome))  %>% select (count)
+        valueBox(value = plyrA ,
+                 subtitle = "PlyCnt")
+    })
+    
+    
+    output$vb2 <- renderValueBox({
+        koRecA <- values$DT %>% filter (outcome == "Ko Rec", team == "A") %>%
+            summarize(count = sum (outcome == "Ko Rec"))  %>% select (count)
+        valueBox(value = koRecA,
+                 subtitle = "KoRec")
+    })
+    
+    output$vb3 <- renderValueBox({
+        KoLostA <- values$DT %>% filter (outcome == "Ko Lost",  team == "A") %>%
+            summarize(count = sum (outcome == "Ko Lost"))  %>% select (count)
+        valueBox(value = KoLostA,
+                 subtitle = "KoLost")
+    })
+    
+    output$vb4 <- renderValueBox({
+        GoalA <- values$DT %>% filter (outcome == "Goal", team == "A") %>%
+            summarize(count = sum (outcome == "Goal"))  %>% select (count)
+        valueBox(value =   GoalA ,
+                 subtitle = "Goal")
+    })
+    
+    
+    output$vb5 <- renderValueBox({
+        PointA <- values$DT %>% filter (outcome == "Point",team == "A") %>%
+            summarize(count = sum (outcome == "Point"))  %>% select (count)
+        valueBox(value = PointA,
+                 subtitle = "Point")
+    })
+    
+    
+    output$vb6 <- renderValueBox({
+        MissA <- values$DT %>% filter (outcome == "Miss", team == "A") %>%
+            summarize(count = sum (outcome == "Miss"))  %>% select (count)
+        valueBox(value =  MissA,
+                 subtitle = "Miss")
+    })
+        
+        output$vb19 <- renderValueBox({
+          ShortA <- values$DT %>% filter (outcome == "Short", team == "A") %>%
+            summarize(count = sum (outcome == "Short"))  %>% select (count)
+          valueBox(value = ShortA,
+                   subtitle = "Short")
+        })
+        
+   
+    
+    output$vb7 <- renderValueBox({
+        FkGoalA <- values$DT %>% filter (outcome == "Fk Goal", team == "A") %>%
+            summarize(count = sum (outcome == "Fk Goal"))  %>% select (count)
+        valueBox(value =  FkGoalA,
+                 subtitle = "FkGoal")
+    })
+    
+    output$vb8 <- renderValueBox({
+        FkPointA <- values$DT %>% filter (outcome == "Fk Point", team == "A") %>%
+            summarize(count = sum (outcome == "Fk Point"))  %>% select (count)
+        valueBox(value = FkPointA,
+                 subtitle = "FkPoint")
+    })
+    
+    
+    output$vb9 <- renderValueBox({
+        FkMissA <- values$DT %>% filter (outcome == "Fk Miss", team == "A") %>%
+            summarize(count = sum (outcome == "Fk Miss"))  %>% select (count)
+        valueBox(value = FkMissA,
+                 subtitle = " Fk Miss")
+    })
+    
+    
+    output$vb21 <- renderValueBox({
+      FkShortA <- values$DT %>% filter (outcome == "Fk Short", team == "A") %>%
+        summarize(count = sum (outcome == "Fk Short"))  %>% select (count)
+      valueBox(value = FkShortA,
+               subtitle = " Fk Short")
+    })
+    
+    output$vb10 <- renderValueBox({
+        plyrB <- values$DT %>% filter (outcome == input$outcome, player == input$player, team == "B") %>%
+            summarize(count = sum (outcome == input$outcome))  %>% select (count)
+        valueBox(value =  plyrB,
+                 subtitle = "PlyCnt")
+    })
+    
+    
+    output$vb11 <- renderValueBox({
+        KoRecB <- values$DT %>% filter (outcome == "Ko Rec", team == "B") %>%
+            summarize(count = sum (outcome == "Ko Rec"))  %>% select (count)
+        valueBox(value = KoRecB,
+                 subtitle = "KoRec")
+    })
+    
+    output$vb12 <- renderValueBox({
+        KoLostB <- values$DT %>% filter (outcome == "Ko Lost",  team == "B") %>%
+            summarize(count = sum (outcome == "Ko Lost"))  %>% select (count)
+        valueBox(value = KoLostB,
+                 subtitle = "KoLost")
+    })
+    
+    output$vb13 <- renderValueBox({
+        GoalB <- values$DT %>% filter (outcome == "Goal", team == "B") %>%
+            summarize(count = sum (outcome == "Goal"))  %>% select (count)
+        valueBox(value = GoalB,
+                 subtitle = "Goal")
+    })
+    
+    
+    output$vb14 <- renderValueBox({
+        PointB <- values$DT %>% filter (outcome == "Point",team == "B") %>%
+            summarize(count = sum (outcome == "Point"))  %>% select (count)
+        valueBox(value = PointB,
+                 subtitle = "Point")
+    })
+    
+    
+    output$vb15 <- renderValueBox({
+        MissB <- values$DT %>% filter (outcome == "Miss", team == "B") %>%
+            summarize(count = sum (outcome == "Miss"))  %>% select (count)
+        valueBox(value =  MissB,
+                 subtitle = "Miss")
+    })
+    
+    output$vb20 <- renderValueBox({
+      ShortB <- values$DT %>% filter (outcome == "Short", team == "B") %>%
+        summarize(count = sum (outcome == "Short"))  %>% select (count)
+      valueBox(value = ShortB,
+               subtitle = "Short")
+    })
+    
+    output$vb16 <- renderValueBox({
+        FkGoalB <- values$DT %>% filter (outcome == "Fk Goal", team == "B") %>%
+            summarize(count = sum (outcome == "Fk Goal"))  %>% select (count)
+        valueBox(value =  FkGoalB,
+                 subtitle = "FkGoal")
+    })
+    
+    output$vb17 <- renderValueBox({
+        FkPointB <- values$DT %>% filter (outcome == "Fk Point", team == "B") %>%
+            summarize(count = sum (outcome == "Fk Point"))  %>% select (count)
+        valueBox(value = FkPointB,
+                 subtitle = "FkPoint")
+    })
+
+    
+    output$vb18 <- renderValueBox({
+        FkMissB <- values$DT %>% filter (outcome == "Fk Miss", team == "B") %>%
+            summarize(count = sum (outcome == "Fk Miss"))  %>% select (count)
+        valueBox(value = FkMissB,
+                 subtitle = "FkMiss")
+    })
+    
+    output$vb22 <- renderValueBox({
+      FkShortB <- values$DT %>% filter (outcome == "Fk Short", team == "B") %>%
+        summarize(count = sum (outcome == "Fk Short"))  %>% select (count)
+      valueBox(value = FkShortB,
+               subtitle = " Fk Short")
+    })
+    
+    
+    
+    
+}
+
+shinyApp(ui, server)
+
